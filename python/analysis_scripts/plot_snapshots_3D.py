@@ -30,7 +30,7 @@ def main(filename, start, count, output):
     tasks = ['u','v','w']
     scale = 4
     dpi = 100
-    title_func = lambda sim_time: 't = {:.3f}'.format(sim_time)
+    title_func = lambda sim_time: 't = {:.3f} t_inner'.format(sim_time) # Need to change this 
     savename_func = lambda write: 'write_{:06}.png'.format(write)
     # Layout
     nrows, ncols = 1,3 
@@ -43,15 +43,19 @@ def main(filename, start, count, output):
     fig = mfig.figure
     # Plot writes
     with h5py.File(filename, mode='r') as file:
+        #print(str(start) + ' ' + str(start + count))
         for index in range(start, start+count):
             for n, task in enumerate(tasks):
                 # Build subfigure axes
+                #print(str(n) + ' ' + str(task))
                 i, j = divmod(n, ncols)
                 axes = mfig.add_axes(i, j, [0, 0, 1, 1])
                 # Call 3D plotting helper, slicing in time
                 dset = file['tasks'][task]
                 #plot_axes = [3,1]
+                #print(run_slices)
                 new_slices = [index] + run_slices
+                #print(new_slices)
                 plot_tools.plot_bot(dset, plot_axes, new_slices, axes=axes, title=task, even_scale=True)
             # Add time title
             title = title_func(file['scales/sim_time'][index])
@@ -82,9 +86,9 @@ if __name__ == "__main__":
             if not output_path.exists():
                 output_path.mkdir()
     try:
-        slicer = float(args['--slice'])
+        slicer = int(args['--slice'])
     except:
-        slicer = 7.5
+        slicer = 7
         pass
     x_axis = str(args['--x_axis'])
     y_axis = str(args['--y_axis'])
@@ -98,12 +102,14 @@ if __name__ == "__main__":
             plot_axes.append(3)
         else:
             print('Bad axis basis specified. Options are z, theta, r. Exiting...')
+    #print(plot_axes)
     run_slices = []
     for i in range(3):
         if i+1 in plot_axes:
             run_slices.append(slice(None))
         else:
             run_slices.append(slicer)
+    #print(run_slices)
 
     post.visit_writes(args['<files>'], main, output=output_path)
 

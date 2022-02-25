@@ -1,6 +1,10 @@
 # Run inside TC_... folder to merge procs and plot snapshots. Use slurm-analysis.sh for
 # analysis in sbatch script
 
+source ~/miniconda3/etc/profile.d/conda.sh
+
+conda activate dedalus
+
 function png2mp4(){
     cat $1 | ffmpeg \
         -y \
@@ -27,7 +31,7 @@ python3 -m dedalus merge_procs snapshots/
 echo "Generating and animating plots..."
 
 
-python3 ~/GQL_TC/python/analysis_scripts/plot_snapshots_3D.py snapshots/snapshots_s1.h5 --x_axis=theta --y_axis=z
+python3 ~/GQL_TC/python/analysis_scripts/plot_snapshots_3D.py snapshots/snapshots_s1.h5 --x_axis=theta --y_axis=z 
 png2mp4 'img_snapshots/*' theta_z.mp4 30
 rm -r img_snapshots
 
@@ -35,7 +39,7 @@ python3 ~/GQL_TC/python/analysis_scripts/plot_snapshots_3D.py snapshots/snapshot
 png2mp4 'img_snapshots/*' r_z.mp4 30
 rm -r img_snapshots
 
-python3 ~/GQL_TC/python/analysis_scripts/plot_snapshots_3D.py snapshots/snapshots_s1.h5 --x_axis=theta --y_axis=r --slice=1.5
+python3 ~/GQL_TC/python/analysis_scripts/plot_snapshots_3D.py snapshots/snapshots_s1.h5 --x_axis=theta --y_axis=r --slice=2
 png2mp4 'img_snapshots/*' theta_r.mp4 30
 rm -r img_snapshots
 

@@ -9,8 +9,8 @@ Options:
   --m=<initial_m>  M1 mode to begin initial conditions
   --mu=<mu>        mu = Omega2/Omega1 [default: 0]
   --ar=<Gamma>     Aspect ratio (height/width)
-  --mesh1=<mesh_1> First mesh core count
-  --mesh2=<mesh_2> Second mesh core count
+  --mesh_1=<mesh_1> First mesh core count
+  --mesh_2=<mesh_2> Second mesh core count
   --restart=<restart> True or False
   --restart_file=<restart_file> Point to a merged snapshots_s1.h5 file
   --GQL=<GQL> True or False
@@ -92,9 +92,9 @@ Default parameters from Barenghi (1991, J. Comp. Phys.).
 #Lz = 2.0074074463832545
 Sc = 1
 dealias = 3/2
-nz=32
-ntheta=32
-nr=32
+nz = 32
+ntheta = 32
+nr = 32
 
 #eta_string = "{:.4e}".format(eta).replace(".","-")
 
@@ -150,7 +150,7 @@ logger.info("Lz set to {:.6e}".format(Lz))
 variables = ['u','ur','v','vr','w','wr','p']
 
 #domain
-z_basis = de.Fourier(  'z', nz, interval=[0., Lz], dealias=dealias)
+z_basis = de.Fourier('z', nz, interval=[0., Lz], dealias=dealias)
 theta_basis = de.Fourier('theta', ntheta, interval=[0., Ltheta], dealias=dealias)
 r_basis = de.Chebyshev('r', nr, interval=[R1, R2], dealias=dealias)
 
@@ -162,13 +162,13 @@ domain = de.Domain(bases, grid_dtype=np.float64, mesh=[mesh_1,mesh_2])
 problem = de.IVP(domain, variables=variables)
 
 #params into equations
-problem.parameters['eta']=eta
-problem.parameters['mu']=mu
-problem.parameters['Lz']=Lz
-problem.parameters['nu']=nu
-problem.parameters['R1']=R1
-problem.parameters['R2']=R2
-problem.parameters['pi']=np.pi
+problem.parameters['eta'] = eta
+problem.parameters['mu'] = mu
+problem.parameters['Lz'] = Lz
+problem.parameters['nu'] = nu
+problem.parameters['R1'] = R1
+problem.parameters['R2'] = R2
+problem.parameters['pi'] = np.pi
 
 #Substitutions
 
@@ -264,7 +264,7 @@ problem.add_equation("wr - dr(w) = 0")
 #Boundary Conditions
 problem.add_bc("left(u) = 0")
 problem.add_bc("right(u) = 0", condition="ntheta != 0 or nz != 0")
-problem.add_bc("right(p) = 0", condition="ntheta == 0 and nz == 0")
+problem.add_bc("right(p) = 0", condition="ntheta == 0 and nz == 0") #??
 problem.add_bc("left(v) = 0")
 problem.add_bc("right(v) = 0")
 problem.add_bc("left(w) = 0")
@@ -283,14 +283,14 @@ v = solver.state['v']
 vr = solver.state['vr']
 w = solver.state['w']
 wr = solver.state['wr']
-r = problem.domain.grid(-1,scales=problem.domain.dealias)
-z = problem.domain.grid(0,scales=problem.domain.dealias)
-theta = problem.domain.grid(1,scales=problem.domain.dealias)
+r = problem.domain.grid(-1, scales = problem.domain.dealias)
+z = problem.domain.grid(0, scales = problem.domain.dealias)
+theta = problem.domain.grid(1, scales = problem.domain.dealias)
 r_in = R1
 
 
 A0 = 1e-3
-if restart==True:
+if restart == True:
 	logger.info("Restarting from file {}".format(restart_file))
 	write, last_dt = solver.load_state(restart_file, -1)
 elif willis:
@@ -347,12 +347,12 @@ else:
 #Setting Simulation Runtime
 omega1 = 1/eta - 1.
 period = 2*np.pi/omega1
-solver.stop_sim_time = 6*period
-solver.stop_wall_time = 24*3600.#np.inf
-solver.stop_iteration = 2000
+solver.stop_sim_time = np.inf #6*period
+solver.stop_wall_time = 24*3600. #np.inf # This is in seconds
+solver.stop_iteration = np.inf #2000
 
 #CFL stuff
-CFL = flow_tools.CFL(solver, initial_dt=1e-2, cadence=5, safety=0.3,max_change=1.5, min_change=0.5,max_dt=1, threshold=0.1)
+CFL = flow_tools.CFL(solver, initial_dt=1e-2, cadence=5, safety=0.3, max_change=1.5, min_change=0.5, max_dt=1, threshold=0.1)
 CFL.add_velocities(('u', 'v', 'w'))
 
 # Flow properties
@@ -374,7 +374,7 @@ scalar_output_time_cadence = output_time_cadence/100.
 
 # ~ analysis = solver.evaluator.add_file_handler('taylor_couette',scalar_output_time_cadence,max_writes=np.inf)
 logger.info("sim_name= {}".format(sim_name))
-snapshots=solver.evaluator.add_file_handler(sim_name + 'snapshots',sim_dt=output_time_cadence,max_writes=np.inf)
+snapshots = solver.evaluator.add_file_handler(sim_name + 'snapshots',sim_dt=output_time_cadence,max_writes=np.inf)
 snapshots.add_system(solver.state)
 
 #Analysis files
