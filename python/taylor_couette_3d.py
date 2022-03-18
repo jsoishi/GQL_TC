@@ -93,7 +93,7 @@ Default parameters from Barenghi (1991, J. Comp. Phys.).
 Sc = 1
 dealias = 3/2
 nz = 32
-ntheta = 32
+ntheta = 64 #32
 nr = 32
 
 #eta_string = "{:.4e}".format(eta).replace(".","-")
@@ -121,6 +121,7 @@ path = 'results/'+root_folder
 if rank==0:
     if not os.path.exists(path):
         os.mkdir(path)
+        # os.chdir(path) # Allows us to run slurm_analysis in run_GQL.sh or run_DNS.sh
     elif restart==False:
         logger.info('Folder for run already exists.')
         logger.info('Use restart, rename existing folder, or change parameters')
@@ -198,6 +199,7 @@ problem.substitutions['vol_avg(A)']   = 'integ(r*A)/(pi*(R2**2 - R1**2)*Lz)'
 problem.substitutions['probe(A)'] = 'interp(A,r={}, theta={}, z={})'.format(R1 + 0.5, 0., Lz/2.)
 
 problem.substitutions['KE'] = '0.5*vel_sum_sq'
+problem.substitutions['perturb_KE'] = '0.5*(u**2 + v**2 + w**2)'
 problem.substitutions['u_rms'] = 'sqrt(u*u)'
 problem.substitutions['v_rms'] = 'sqrt(v*v)'
 problem.substitutions['w_rms'] = 'sqrt(w*w)'
@@ -325,15 +327,20 @@ else:
     rand = np.random.RandomState(seed=42)
 
     logger.info("Using incompressible noise initial conditions in (u, v, w) with amplitude A0 = {}.".format(A0))
+    filter_fraction = 0.5
     Ar = domain.new_field()
     Atheta = domain.new_field()
     Az = domain.new_field()
     for A in [Ar, Atheta, Az]:
         A.set_scales(domain.dealias, keep_data=False)
         A['g'] = rand.standard_normal(gshape)[slices]*np.sin(np.pi*(r - r_in))
-        filter_field(A)
+        A.set_scales(filter_fraction, keep_data = True)
+        A['c']
+        A['g']
+        A.set_scales(domain.dealias, keep_data=True)
     for vel in [u, v, w]:
         vel.set_scales(domain.dealias, keep_data=False)
+    # Curl of A
     u['g'] = A0 * (Az.differentiate('theta')['g']/r - Atheta.differentiate('z')['g'])
     v['g'] = A0 * (Ar.differentiate('z')['g'] - Az.differentiate('r')['g'])
     w['g'] = A0 * (Atheta['g'] + r*Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g'])/r
@@ -347,8 +354,8 @@ else:
 #Setting Simulation Runtime
 omega1 = 1/eta - 1.
 period = 2*np.pi/omega1
-solver.stop_sim_time = np.inf #6*period
-solver.stop_wall_time = 24*3600. #np.inf # This is in seconds
+solver.stop_sim_time = 15 * period # np.inf #6*period
+solver.stop_wall_time = 24 * 3600. #np.inf # This is in seconds
 solver.stop_iteration = np.inf #2000
 
 #CFL stuff
@@ -409,7 +416,7 @@ if Jeffs_analysis:
     analysis_scalar.add_task("vol_avg(Re_rms)", name="Re_rms")
     analysis_scalar.add_task("probe(w)", name="w_probe")
     analysis_scalar.add_task("integ(r*enstrophy)", name="enstrophy")
-    analysis_scalar.add_task("integ(r*KE) - integ(v0, 'r')", name="pertubation_KE")
+    analysis_scalar.add_task("integ(r*perturb_KE)", name="pertubation_KE")
 
 
 
