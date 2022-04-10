@@ -1,0 +1,116 @@
+%% Author_tex.tex
+%% V1.0
+%% 2012/13/12
+%% developed by Techset
+%%
+%% This file describes the coding for rstrans.cls
+
+\documentclass[openacc]{rstransa}%%%%where rstrans is the template name
+
+%%%% *** Do not adjust lengths that control margins, column widths, etc. ***
+
+%%%%%%%%%%% Defining Enunciations  %%%%%%%%%%%
+\newtheorem{theorem}{\bf Theorem}[section]
+\newtheorem{condition}{\bf Condition}[section]
+\newtheorem{corollary}{\bf Corollary}[section]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Reyn}{\mathrm{Re}}
+
+\begin{document}
+
+%%%% Article title to be placed here
+\title{Generalized Quasilinear simulations of Taylor-Couette Flow}
+
+\author{%%%% Author details
+Jeffrey S. Oishi$^{1}$ and Morgan Baxter$^{1,2}$}
+
+%%%%%%%%% Insert author address here
+\address{$^{1}$Department of Physics and Astronomy, Bates College, Lewiston, ME USA\\
+$^{2}$Company Name, Whereever, USA}
+
+%%%% Subject entries to be placed here %%%%
+\subject{xxxxx, xxxxx, xxxx}
+
+%%%% Keyword entries to be placed here %%%%
+\keywords{xxxx, xxxx, xxxx}
+
+%%%% Insert corresponding author and its email address}
+\corres{Jeffrey S. Oishi\\
+\email{joishi@bates.edu}}
+
+%%%% Abstract text to be placed here %%%%%%%%%%%%
+\begin{abstract}
+To do: write abstract
+\end{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%% Insert the texts which can accomdate on firstpage in the tag "fmtext" %%%%%
+
+\begin{fmtext}
+\section{Introduction}
+Something about Taylor (1923); GQL.
+
+\section{Equations}
+
+Sample equations.
+
+\end{fmtext}
+
+%%%%%%%%%%%%%%% End of first page %%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+
+\section{Runs}
+Taylor-Couette flow is characterized by $\Reyn_i$, $\Reyn_o$, $\eta$, $\Gamma$. For all runs in this paper, the outer cylinder is stationary, so $\Reyn_o = 0$.
+
+The ($\eta$, $\Gamma$) choice is motivated by \cite{1984JFM...146...45M,1984JFM...146...65M}
+
+\begin{table}[!h]
+\caption{Simulations}%%%Table caption goes here
+\label{tab:simulations}
+\begin{tabular}{rllllllll}%%%The number of columns has to be defined here
+\hline
+Run & $\Reyn_i$ & $\eta$ & $\Gamma$  & $N_r$ & $N_\theta$ & $N_z$& $\Lambda_\theta$ & $\Lambda_z$\\
+\hline
+A & 750 & 0.875 & 3 & 32 & 64 & 64 & - & -\\
+B & 1000 & 0.875 & 3 & 32 & 128 & 64 & - & -\\
+C & 1500 & 0.875 & 3 & 32 & 128 & 64 & - & -\\
+\end{tabular}
+\vspace*{-4pt}
+\end{table}%%%End of the table
+
+
+\section{Figures \& Tables}
+
+The output for figure is:\vspace*{-7pt}
+
+%\begin{figure}[!h]
+%\centering\includegraphics[width=2.5in]{xxxxxx.eps}
+%%% where xxxxxx name represents "figurename.eps"
+%\caption{Insert figure caption here}
+%\label{fig_sim}
+%\end{figure}
+
+\section{Conclusion}
+
+\enlargethispage{20pt}
+
+
+%\ethics{Insert ethics statement here if applicable.}
+
+\dataccess{Insert details of how to access any supporting data here.}
+
+\aucontribute{JSO designed the study, wrote the GQL projection operators, and implemented the original Taylor-Couette Dedalus script. MB performed the simulations, developed data analysis techniques, and added the GQL terms to the TC script. All authors drafted the manuscript.}
+
+\competing{The authors declare that they have no competing interests.}
+
+\funding{Who paid Morgan? Who paid me?}
+
+\ack{We thank Ben Brown for his help validating the Taylor-Couette code. Computations for this paper were performed on the \emph{Leavitt} cluster at the Bates High Performance Computing Center.}
+
+%%%%%%%%%% Insert bibliography here %%%%%%%%%%%%%%
+
+\bibliographystyle{rsta}
+\bibliography{TC}
+ 
+\end{document}
