@@ -358,11 +358,16 @@ else:
     # Curl of A
     u['g'] = A0 * (Az.differentiate('theta')['g']/r - Atheta.differentiate('z')['g'])
     v['g'] = A0 * (Ar.differentiate('z')['g'] - Az.differentiate('r')['g'])
-    w['g'] = A0 * (Atheta['g'] + r*Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g'])/r
+    w['g'] = A0 * (Atheta['g']/r + Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g']/r)
     u.differentiate('r', out=ur)
     v.differentiate('r', out=vr)
     w.differentiate('r', out=wr)
 
+#Setting Simulation Runtime
+omega1 = 1/eta - 1.
+period = 2*np.pi/omega1
+solver.stop_sim_time = 10 * period # np.inf #6*period
+solver.stop_wall_time = 24 * 3600. #np.inf # This is in seconds
 solver.stop_iteration = np.inf #2000
 
 #CFL stuff
