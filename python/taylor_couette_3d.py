@@ -35,6 +35,18 @@ from mpi4py import MPI
 from GQLProjection import GQLProjection
 from filter_field import filter_field
 
+def cond_number(solver):
+    cond_nums = np.zeros(len(solver.pencils))
+    for i,p in enumerate(solver.pencils):
+        cond_nums[i] = np.linalg.cond(p.L.todense())
+    comm = solver.domain.dist.comm
+    global_max = np.array([0.,])
+    local_max = np.array([cond_nums.max(),])
+    comm.Reduce(local_max,global_max, MPI.MAX)
+    if comm.rank == 0:
+        logger.info("Maximum condition number is {:e}".format(global_max[0]))
+
+
 logger = logging.getLogger(__name__)
 
 de.operators.parseables["Project"] = GQLProjection
@@ -92,9 +104,9 @@ Default parameters from Barenghi (1991, J. Comp. Phys.).
 #Lz = 2.0074074463832545
 Sc = 1
 dealias = 3/2
-nz = 32
-ntheta = 64 #32
-nr = 32
+nz=64
+ntheta=128
+nr=32
 
 #eta_string = "{:.4e}".format(eta).replace(".","-")
 
@@ -233,7 +245,7 @@ if GQL:
     problem.substitutions['w_h'] = "Project_high(w)"
     
     # r momentum (GQL)
-    problem.add_equation("r*r*dt(u) - nu*Lap_r - 2*r*v0*v + r*v0*dtheta(u) + r*r*dr(p) = r*v0*v0 - Project_high(r*r*u_h*dr(u_l)+ r*v_h*dtheta(u_l) + r*r*w_h*dz(u_l) - r*v_h*v_l + r*r*u_l*dr(u_h) +r*v_l*dtheta(u_h) + r*r*w_l*dz(u_h) - r*v_h*v_l) - Project_low(r*r*u_h*dr(u_h)+ r*v_h*dtheta(u_h) + r*r*w_h*dz(u_h) - r*v_h*v_h + r*r*u_l*dr(u_l) + r*v_l*dtheta(u_l) + r*r*w_l*dz(u_l) - r*v_l*v_l)")
+    problem.add_equation("r*r*dt(u) - nu*Lap_r - 2*r*v0*v + r*v0*dtheta(u) + r*r*dr(p) = - Project_high(r*r*u_h*dr(u_l)+ r*v_h*dtheta(u_l) + r*r*w_h*dz(u_l) - r*v_h*v_l + r*r*u_l*dr(u_h) +r*v_l*dtheta(u_h) + r*r*w_l*dz(u_h) - r*v_h*v_l) - Project_low(r*r*u_h*dr(u_h)+ r*v_h*dtheta(u_h) + r*r*w_h*dz(u_h) - r*v_h*v_h + r*r*u_l*dr(u_l) + r*v_l*dtheta(u_l) + r*r*w_l*dz(u_l) - r*v_l*v_l)")
 
     # theta momentum (GQL)
     problem.add_equation("r*r*dt(v) - nu*Lap_t + r*r*dv0dr*u + r*v0*u + r*v0*dtheta(v) + r*dtheta(p) = - Project_high(r*r*u_h*dr(v_l) + r*v_h*dtheta(v_l) + r*r*w_h*dz(v_l) + r*v_h*u_l + r*r*u_l*dr(v_h) + r*v_l*dtheta(v_h) + r*r*w_l*dz(v_h) + r*v_l*u_h) - Project_low(r*r*u_h*dr(v_h) + r*v_h*dtheta(v_h) + r*r*w_h*dz(v_h) + r*v_h*u_h + r*r*u_l*dr(v_l) + r*v_l*dtheta(v_l) + r*r*w_l*dz(v_l) + r*v_l*u_l)")
@@ -250,7 +262,7 @@ else:
     problem.substitutions['UdotGrad_z'] = "UdotGrad_s(w, wr)"
 
     # momentum equations
-    problem.add_equation("r*r*dt(u) - nu*Lap_r - 2*r*v0*v + r*v0*dtheta(u) + r*r*dr(p) = r*v0*v0 - UdotGrad_r")
+    problem.add_equation("r*r*dt(u) - nu*Lap_r - 2*r*v0*v + r*v0*dtheta(u) + r*r*dr(p) = - UdotGrad_r")
     problem.add_equation("r*r*dt(v) - nu*Lap_t + r*r*dv0dr*u + r*v0*u + r*v0*dtheta(v) + r*dtheta(p)  = -UdotGrad_t  ")
     problem.add_equation("r*r*dt(w) - nu*Lap_z + r*r*dz(p) + r*v0*dtheta(w) = -UdotGrad_z")
 
@@ -331,31 +343,16 @@ else:
     Ar = domain.new_field()
     Atheta = domain.new_field()
     Az = domain.new_field()
+
+    fr= (4*(r-R1)*(R2-r))**4
     for A in [Ar, Atheta, Az]:
         A.set_scales(domain.dealias, keep_data=False)
-        A['g'] = rand.standard_normal(gshape)[slices]*np.sin(np.pi*(r - r_in))
-        A.set_scales(filter_fraction, keep_data = True)
+        A['g'] = rand.standard_normal(gshape)[slices]
+        A.set_scales(0.5,keep_data=True)
         A['c']
         A['g']
-        A.set_scales(domain.dealias, keep_data=True)
-    for vel in [u, v, w]:
-        vel.set_scales(domain.dealias, keep_data=False)
-    # Curl of A
-    u['g'] = A0 * (Az.differentiate('theta')['g']/r - Atheta.differentiate('z')['g'])
-    v['g'] = A0 * (Ar.differentiate('z')['g'] - Az.differentiate('r')['g'])
-    w['g'] = A0 * (Atheta['g'] + r*Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g'])/r
-    # kz = 2*np.pi/Lz
-    # v['g'] = A0 * np.sin(np.pi*(r-r_in)) * np.sin(kz*z)
-    # w['g'] = A0 * np.sin(np.pi*(r-r_in)) * np.sin(m1*theta)
-    u.differentiate('r', out=ur)
-    v.differentiate('r', out=vr)
-    w.differentiate('r', out=wr)
-
-#Setting Simulation Runtime
-omega1 = 1/eta - 1.
-period = 2*np.pi/omega1
-solver.stop_sim_time = 15 * period # np.inf #6*period
-solver.stop_wall_time = 24 * 3600. #np.inf # This is in seconds
+        A.set_scales(domain.dealias,keep_data=True)
+        A['g'] *= fr
 solver.stop_iteration = np.inf #2000
 
 #CFL stuff
@@ -418,10 +415,8 @@ if Jeffs_analysis:
     analysis_scalar.add_task("integ(r*enstrophy)", name="enstrophy")
     analysis_scalar.add_task("integ(r*perturb_KE)", name="pertubation_KE")
 
-
-
-
 logger.info("Starting main loop...")
+cond_number(solver)
 start_time = time.time()
 while solver.ok:
     solver.step(dt)
