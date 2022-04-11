@@ -353,6 +353,16 @@ else:
         A['g']
         A.set_scales(domain.dealias,keep_data=True)
         A['g'] *= fr
+    for vel in [u, v, w]:
+        vel.set_scales(domain.dealias, keep_data=True)
+    # Curl of A
+    u['g'] = A0 * (Az.differentiate('theta')['g']/r - Atheta.differentiate('z')['g'])
+    v['g'] = A0 * (Ar.differentiate('z')['g'] - Az.differentiate('r')['g'])
+    w['g'] = A0 * (Atheta['g'] + r*Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g'])/r
+    u.differentiate('r', out=ur)
+    v.differentiate('r', out=vr)
+    w.differentiate('r', out=wr)
+
 solver.stop_iteration = np.inf #2000
 
 #CFL stuff
