@@ -1,6 +1,6 @@
 """
 Usage:
-  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--restart=<restart>] [--restart_file=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry]
+  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--nr=<nr>] [--nt=<nt>] [--nz=<nz>] [--restart=<restart>] [--restart_file=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry]
   taylor_couette_3d.py
 
 Options:
@@ -9,6 +9,9 @@ Options:
   --m=<initial_m>  M1 mode to begin initial conditions
   --mu=<mu>        mu = Omega2/Omega1 [default: 0]
   --ar=<Gamma>     Aspect ratio (height/width)
+  --nr=<nr>        radial modes [default: 32]
+  --nt=<nt>        theta modes [default: 32]
+  --nz=<nz>        z modes [default: 32]
   --mesh_1=<mesh_1> First mesh core count
   --mesh_2=<mesh_2> Second mesh core count
   --restart=<restart> True or False
@@ -56,8 +59,8 @@ rank=comm.Get_rank()
 
 args=docopt(__doc__)
 Re1=float(args['--re'])
-eta=np.float(args['--eta'])
-mu = np.float(args['--mu'])
+eta=float(args['--eta'])
+mu = float(args['--mu'])
 Gamma = float(args['--ar'])
 GQL = args['--GQL']
 
@@ -104,9 +107,9 @@ Default parameters from Barenghi (1991, J. Comp. Phys.).
 #Lz = 2.0074074463832545
 Sc = 1
 dealias = 3/2
-nz=64
-ntheta=128
-nr=32
+nz=int(args['--nz'])
+ntheta=int(args['--nt'])
+nr=int(args['--nr'])
 
 #eta_string = "{:.4e}".format(eta).replace(".","-")
 
