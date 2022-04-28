@@ -452,16 +452,5 @@ while solver.ok:
 
 end_time = time.time()
 
-logger.info('Simulation run time: {:f}'.format(end_time-start_time))
-
-logger.info('Time per iteration: {:f}'.format((end_time-start_time)/solver.iteration))
-
-logger.info('Simulation ended')
-
-
-
-
-
-
-
+solver.log_stats()
 
