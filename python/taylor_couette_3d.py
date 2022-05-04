@@ -1,7 +1,6 @@
 """
 Usage:
-  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--nr=<nr>] [--nt=<nt>] [--nz=<nz>] [--restart=<restart>] [--restart_file=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry]
-  taylor_couette_3d.py
+  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--nr=<nr>] [--nt=<nt>] [--nz=<nz>] [--restart] [--restart_file=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry] [--perturb_restart] taylor_couette_3d.py
 
 Options:
   --re=<reynolds>  Reynolds number for simulation
@@ -14,8 +13,8 @@ Options:
   --nz=<nz>        z modes [default: 32]
   --mesh_1=<mesh_1> First mesh core count
   --mesh_2=<mesh_2> Second mesh core count
-  --restart=<restart> True or False
-  --restart_file=<restart_file> Point to a merged snapshots_s1.h5 file
+  --restart        Is this a restart? [default: False]
+  --restart_file=<restart_file>    Point to a merged snapshots_s1.h5 file
   --GQL=<GQL> True or False
   --Lambda_z=<Lambda_z> Specify an integer cutoff to seperate low and high modes for z
   --Lambda_theta=<Lambda_theta> Specify an integer cutoff to seperate low and high modes for theta
@@ -23,6 +22,7 @@ Options:
   --single_mode  Use single mode ICs [default: False]
   --run_note=<run_note>  Note to add to run directory name [default: None]
   --theta_symmetry  Restrict theta to 2pi/m1 [default: False]
+  --perturb_restart    perturb on restart [default: False]
 """
 
 import numpy as np
@@ -36,7 +36,7 @@ import os
 import subprocess
 from mpi4py import MPI
 from GQLProjection import GQLProjection
-from filter_field import filter_field
+from random_vector_potential import random_vector_potential
 
 def cond_number(solver):
     cond_nums = np.zeros(len(solver.pencils))
@@ -67,6 +67,7 @@ GQL = args['--GQL']
 willis=args['--willis']
 single_mode = args['--single_mode']
 theta_symmetry = args['--theta_symmetry']
+perturb_restart = args['--perturb_restart']
 
 if GQL!=None:
     GQL=True
@@ -75,7 +76,7 @@ if GQL!=None:
 mesh_1 = int(args['--mesh_1'])
 mesh_2 = int(args['--mesh_2'])
 m1 = int(args['--m'])
-restart = bool(args['--restart'])
+restart = args['--restart']
 run_note = args['--run_note']
 if run_note == 'None':
     run_note = None
@@ -142,7 +143,7 @@ if rank==0:
         logger.info('Use restart, rename existing folder, or change parameters')
         #subprocess.call(['analysis_scripts/./kill_script.sh'])
 sim_name=path
-restart=False
+#restart=False
 
 #derived parameters
 R1 = eta/(1. - eta)
@@ -307,9 +308,24 @@ r_in = R1
 
 
 A0 = 1e-3
-if restart == True:
-	logger.info("Restarting from file {}".format(restart_file))
-	write, last_dt = solver.load_state(restart_file, -1)
+if restart:
+    logger.info("Restarting from file {}".format(restart_file))
+    write, last_dt = solver.load_state(restart_file, -1)
+
+    if perturb_restart:
+        logger.info("perturbing restarted velocity field with A0 = {}".format(A0))
+        Ar, Atheta, Az = random_vector_potential(domain, R1, R2)
+        for vel in [u, v, w]:
+            vel.set_scales(domain.dealias, keep_data=True)
+
+        # Curl of A
+        u['g'] += A0 * (Az.differentiate('theta')['g']/r - Atheta.differentiate('z')['g'])
+        v['g'] += A0 * (Ar.differentiate('z')['g'] - Az.differentiate('r')['g'])
+        w['g'] += A0 * (Atheta['g']/r + Atheta.differentiate('r')['g'] - Ar.differentiate('theta')['g']/r)
+        u.differentiate('r', out=ur)
+        v.differentiate('r', out=vr)
+        w.differentiate('r', out=wr)
+
 elif willis:
     ## Willis & Bahrenghi ICs
     logger.info("Using initial conditions from Willis's PhD thesis")
@@ -336,26 +352,9 @@ elif single_mode:
     v.differentiate('r', out=vr)
     w.differentiate('r', out=wr)
 else:
-    # Random perturbations to v in (r, z)
-    gshape = domain.dist.grid_layout.global_shape(scales=domain.dealias)
-    slices = domain.dist.grid_layout.slices(scales=domain.dealias)
-    rand = np.random.RandomState(seed=42)
-
     logger.info("Using incompressible noise initial conditions in (u, v, w) with amplitude A0 = {}.".format(A0))
-    filter_fraction = 0.5
-    Ar = domain.new_field()
-    Atheta = domain.new_field()
-    Az = domain.new_field()
 
-    fr= (4*(r-R1)*(R2-r))**4
-    for A in [Ar, Atheta, Az]:
-        A.set_scales(domain.dealias, keep_data=False)
-        A['g'] = rand.standard_normal(gshape)[slices]
-        A.set_scales(0.5,keep_data=True)
-        A['c']
-        A['g']
-        A.set_scales(domain.dealias,keep_data=True)
-        A['g'] *= fr
+    Ar, Atheta, Az = random_vector_potential(domain, R1, R2)
     for vel in [u, v, w]:
         vel.set_scales(domain.dealias, keep_data=True)
     # Curl of A
@@ -369,12 +368,12 @@ else:
 #Setting Simulation Runtime
 omega1 = 1/eta - 1.
 period = 2*np.pi/omega1
-solver.stop_sim_time = 10 * period # np.inf #6*period
+solver.stop_sim_time = solver.sim_time + 10 * period # np.inf #6*period
 solver.stop_wall_time = 24 * 3600. #np.inf # This is in seconds
 solver.stop_iteration = np.inf #2000
 
 #CFL stuff
-CFL = flow_tools.CFL(solver, initial_dt=1e-2, cadence=5, safety=0.3, max_change=1.5, min_change=0.5, max_dt=1, threshold=0.1)
+CFL = flow_tools.CFL(solver, initial_dt=1e-2, cadence=5, safety=0.3, max_change=1.5, min_change=0.5, max_dt=0.1, threshold=0.1)
 CFL.add_velocities(('u', 'v', 'w'))
 
 # Flow properties
@@ -396,7 +395,7 @@ scalar_output_time_cadence = output_time_cadence/100.
 
 # ~ analysis = solver.evaluator.add_file_handler('taylor_couette',scalar_output_time_cadence,max_writes=np.inf)
 logger.info("sim_name= {}".format(sim_name))
-snapshots = solver.evaluator.add_file_handler(sim_name + 'snapshots',sim_dt=output_time_cadence,max_writes=np.inf)
+snapshots = solver.evaluator.add_file_handler(sim_name + 'snapshots',sim_dt=period,max_writes=np.inf)
 snapshots.add_system(solver.state)
 
 #Analysis files
