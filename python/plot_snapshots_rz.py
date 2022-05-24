@@ -2,11 +2,11 @@
 Plot planes from joint analysis files.
 
 Usage:
-    plot_snapshots.py <files>... [--output=<dir>]
+    plot_snapshots.py <files>... [--output=<dir> --period=<period>]
 
 Options:
     --output=<dir>  Output directory [default: ./img_snapshots]
-
+    --period=<period>   rotation period  [default: 1]
 """
 
 import h5py
@@ -19,7 +19,7 @@ plt.ioff()
 from dedalus.extras import plot_tools
 
 
-def main(filename, start, count, output):
+def main(filename, start, count, output, period):
     """Save plot of specified tasks for given range of analysis writes."""
 
     # Plot settings
@@ -56,7 +56,7 @@ def main(filename, start, count, output):
                 data_slices = [index, slice(None), 0, slice(None)]
                 plot_tools.plot_bot(dset, image_axes, data_slices, axes=axes, title=task, even_scale=True)
             # Add time title
-            title = title_func(file['scales/sim_time'][index])
+            title = title_func(file['scales/sim_time'][index]/period)
             title_height = 1 - 0.5 * mfig.margin.top / mfig.fig.y
             fig.suptitle(title, x=0.48, y=title_height, ha='left')
             # Save figure
@@ -78,10 +78,11 @@ if __name__ == "__main__":
     args = docopt(__doc__)
 
     output_path = pathlib.Path(args['--output']).absolute()
+    period = float(args['--period'])
     # Create output directory if needed
     with Sync() as sync:
         if sync.comm.rank == 0:
             if not output_path.exists():
                 output_path.mkdir()
-    post.visit_writes(args['<files>'], main, output=output_path)
+    post.visit_writes(args['<files>'], main, output=output_path, period=period)
 
