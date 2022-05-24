@@ -1,14 +1,18 @@
 """
 Usage:
-  TC_stability.py  --re=<reynolds> --eta=<eta> [--m=<initial_m>] [--nr=<nr>] [--mu=<mu>] [--ar=<Gamma>] 
+  TC_stability.py  --re=<reynolds> --eta=<eta> [--m=<initial_m>] [--nr=<nr>] [--mu=<mu>] [--ar=<Gamma>] [--re2=<re2>] [--re_range=<re_range> --kz_range=<kz_range>]
 
 Options:
-  --nr=<nr>        number of Radial modes [default: 32]
-  --re=<reynolds>  Reynolds number for simulation
-  --eta=<eta>      Eta - ratio of R1/R2
-  --m=<initial_m>  M1 mode to begin initial conditions [default: 0]
-  --mu=<mu>        mu = Omega2/Omega1 [default: 0]
-  --ar=<Gamma>     Aspect ratio (height/width)
+  --nr=<nr>                 number of Radial modes [default: 32]
+  --re=<reynolds>           Reynolds number for simulation
+  --eta=<eta>               Eta - ratio of R1/R2
+  --m=<initial_m>           M1 mode to begin initial conditions [default: 0]
+  --mu=<mu>                 mu = Omega2/Omega1 [default: 0]
+  --re2=<re2>               Re2 [default: None]
+  --ar=<Gamma>              Aspect ratio (height/width) [default: 3]
+  --re_range=<re_range>     range of Re for crit finder [default: None]
+  --kz_range=<kz_range>     range of kz for crit finder [default: None]
+
 """
 import numpy as np
 from dedalus import public as de
@@ -16,21 +20,43 @@ from eigentools import Eigenproblem, CriticalFinder
 import matplotlib.pyplot as plt
 from docopt import docopt
 import os
+from mpi4py import MPI
+
+import logging
+logger = logging.getLogger(__name__.split('.')[-1])
 
 
 args=docopt(__doc__)
 nr = int(args['--nr'])
 Re1=float(args['--re'])
-eta=np.float(args['--eta'])
-mu = np.float(args['--mu'])
+if args['--re2'] == 'None':
+    Re2 = None
+else:
+    Re2=float(args['--re2'])
+eta=float(args['--eta'])
+mu = float(args['--mu'])
 Gamma = float(args['--ar'])
 m = int(args['--m'])
-
+if args['--re_range'] == 'None':
+    re_range = (350,450)
+else:
+    re_range = [float(i) for i in args['--re_range'].split(',')]
+if args['--kz_range'] == 'None':
+    kz_range = (350,450)
+else:
+    kz_range = [float(i) for i in args['--kz_range'].split(',')]
 plt.style.use('prl')
 
 alpha = 2*np.pi/Gamma
-root_name = "TC_stability_re_{:e}_eta_{:e}_Gamma_{:e}_m_{:d}_mu_{:e}_nr_{:d}".format(Re1,eta,Gamma,m,mu,nr)
-
+if Re2:
+    root_name = "TC_stability_eta_{:e}_Gamma_{:e}_m_{:d}_Re2_{:e}_nr_{:d}".format(eta,Gamma,m,Re2,nr)
+    if MPI.COMM_WORLD.rank == 0:
+        logger.info("Computing Stability for eta={:e}, m={:d}, Gamma={:e}, Re2 = {:e}, nr = {:d}".format(eta, m, Gamma, Re2, nr))
+        logger.info("Computing Stability with  {:f} <= Re_1 <= {:f}, {:f} <= kz <= {:f}".format(re_range[0], re_range[1], kz_range[0], kz_range[1]))
+else:
+    root_name = "TC_stability__eta_{:e}_Gamma_{:e}_m_{:d}_mu_{:e}_nr_{:d}".format(eta,Gamma,m,mu,nr)
+    if MPI.COMM_WORLD.rank == 0:
+        logger.info("Computing Stability for eta={:e}, m={:d}, Gamma={:e}, mu = {:e}, nr = {:d}".format(eta, m, Gamma, mu, nr))
 """
 delta = R2 - R1
 mu = Omega2/Omega1
@@ -51,14 +77,17 @@ variables = ['u','ur','v','vr','w','wr','p']
 r_basis = de.Chebyshev('r', nr, interval=[R1, R2])
 
 bases = [r_basis]
-domain = de.Domain(bases) 
+domain = de.Domain(bases, comm=MPI.COMM_SELF) 
 
 #problem
 problem = de.EVP(domain, eigenvalue='sigma', variables=variables)
 
 #params into equations
 problem.parameters['eta']=eta
-problem.parameters['mu']=mu
+if Re2:
+    problem.parameters['Re2']=Re2
+else:
+    problem.parameters['mu'] = mu
 problem.parameters['Re1']=Re1
 problem.parameters['kz'] = alpha
 problem.parameters['m'] = m
@@ -76,6 +105,8 @@ Lap_z --> z component of vector laplacian
 
 """
 problem.substitutions['nu'] = '1/Re1'
+if Re2:
+    problem.substitutions['mu'] = 'Re2/Re1'
 problem.substitutions['A'] = '(1/eta - 1.)*(mu-eta**2)/(1-eta**2)'
 problem.substitutions['B'] = 'eta*(1-mu)/((1-eta)*(1-eta**2))'
 
@@ -115,28 +146,33 @@ problem.add_bc("right(w) = 0")
 
 
 ep = Eigenproblem(problem)
-ep.solve(sparse=False)
-print("Re1={:e}; eta={:e}; Gamma={:e}; m={:d}; mu= {:e} nr={:d}".format(Re1,eta,Gamma,m,mu,nr))
-print("Max growth rate = {:e}".format(ep.evalues_good.real.max()))
-
 
 cf = CriticalFinder(ep, ("kz","Re1"), find_freq=False)
-nx = 10
-ny = 10
-xpoints = alpha*np.linspace(1, 2, nx)
-ypoints = np.linspace(100,150,ny)
+nx = 10#0
+ny = 10#0
+xpoints = np.linspace(kz_range[0], kz_range[1], nx)
+ypoints = np.linspace(re_range[0], re_range[1], ny)
 
 grid_file = 'results/'+root_name+'grid'
 if os.path.exists(grid_file+'.h5'):
-    cf.load_grid(grid_file+'.h5')
+    if MPI.COMM_WORLD.rank == 0:
+        cf.load_grid(grid_file+'.h5')
 else:
     cf.grid_generator((xpoints,ypoints))
     cf.save_grid(grid_file)
-crits = cf.crit_finder()
-print("Critical Re = {:5.2f}, kz = {:7.5f}".format(crits[1],crits[0]))
-pax,cax = cf.plot_crit()
-pax.collections[0].set_clim(0,0.03)
-cax.xaxis.set_ticks_position('top')
-cax.xaxis.set_label_position('top')
-pax.contour(cf.parameter_grids[0], cf.parameter_grids[1],cf.evalue_grid.real, levels=(0,), colors='white')
-pax.figure.savefig('../figs/'+root_name+'_growth_rates.png',dpi=300)
+if MPI.COMM_WORLD.rank == 0:
+    try:
+        crits = cf.crit_finder(maxiter=300)
+        print(crits)
+        logger.info("m = {:d}, eta = {:5.4f}: Critical Re = {:5.2f}, kz = {:7.5f}".format(m, eta, crits[1],crits[0]))
+    except ValueError:
+        
+        crits = None
+        print("Critical finder failed.")
+    pax,cax = cf.plot_crit()
+    pax.collections[0].set_clim(0,0.01)
+
+    cax.xaxis.set_ticks_position('top')
+    cax.xaxis.set_label_position('top')
+    pax.contour(cf.parameter_grids[0], cf.parameter_grids[1],cf.evalue_grid.real, levels=(0,), colors='white')
+    pax.figure.savefig('../figs/'+root_name+'_growth_rates.png',dpi=300)
