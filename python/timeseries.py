@@ -12,11 +12,15 @@ class Timeseries:
         self.R2 = 1./(1-self.eta)
         self.Omega1 = 1/self.R1
         self.period = 2*np.pi/self.Omega1
+        self.Re = float(re.search("re_([\d.e+-]+)",self.fn).group(1))
         self.Lz = float(re.search("Gamma_([\d.e+-]+)",self.fn).group(1))
         with h5py.File(self.fn, "r") as ts:
             self.t = ts['scales/sim_time'][:]
             self.w_rms = ts['tasks/w_rms'][:,0,0,0]
             self.KE = ts['tasks/KE'][:,0,0,0]/self.Lz
+            self.KEp = ts['tasks/pertubation_KE'][:,0,0,0]/self.Lz
+            self.u_p = ts['tasks/u_probe'][:,0,0,0]
+            self.w_p = ts['tasks/w_probe'][:,0,0,0]
             self.enstrophy = ts['tasks/enstrophy'][:,0,0,0]/self.Lz
 
         
@@ -52,7 +56,12 @@ class Timeseries:
             fig = plt.figure()
         KE_ax = fig.add_subplot(211)
         en_ax = fig.add_subplot(212)
-        KE_ax.plot(self.t/self.period, self.KE)
+        u_to_visc = lambda x: x/self.Re*self.period
+        visc_to_u = lambda x: self.Re*x/self.period
+        ax2 = KE_ax.secondary_xaxis("top",functions=(u_to_visc, visc_to_u))
+        ax2.set_xlabel(r"$t/\tau_{\nu}$")
+        #KE_ax.plot(self.t/self.period, self.KE, label='total')
+        KE_ax.plot(self.t/self.period, self.KEp, label='perturbation')
         KE_ax.set_xlabel(r"$t/\tau_{1}$")
         KE_ax.set_ylabel(r"$KE/L_z$")
 
