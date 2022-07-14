@@ -72,6 +72,7 @@ if GQL!=None:
     GQL=True
     Lambda_z = int(args['--Lambda_z'])
     Lambda_theta = int(args['--Lambda_theta'])
+    logger.info(f"Running with GQL, (Lambda_z, Lambda_theta) = ({Lambda_z}, {Lambda_theta})")
 mesh_1 = int(args['--mesh_1'])
 mesh_2 = int(args['--mesh_2'])
 m1 = int(args['--m'])
