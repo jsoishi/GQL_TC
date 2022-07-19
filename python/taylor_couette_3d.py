@@ -95,9 +95,9 @@ if theta_symmetry:
     except ZeroDivisionError:
         raise ZeroDivisionError("m1 is zero. Symmmetry restriction not possible")
 if GQL:
-    root_folder = "TC_3d_re_{:e}_eta_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}_GQL_Lambdaz_{:d}_Lambdat_{:d}/".format(Re1,eta,Gamma,m1,nz,ntheta,nr,Lambda_z, Lambda_theta)
+    root_folder = "TC_3d_re_{:e}_eta_{:e}_mu_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}_GQL_Lambdaz_{:d}_Lambdat_{:d}/".format(Re1,eta,mu,Gamma,m1,nz,ntheta,nr,Lambda_z, Lambda_theta)
 else:
-    root_folder = "TC_3d_re_{:e}_eta_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}/".format(Re1,eta,Gamma,m1,nz,ntheta,nr)
+    root_folder = "TC_3d_re_{:e}_eta_{:e}_mu_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}/".format(Re1,eta,mu,Gamma,m1,nz,ntheta,nr)
 if willis:
     root_folder = root_folder.strip("/")
     root_folder += "_willis/"
