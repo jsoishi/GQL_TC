@@ -1,6 +1,6 @@
 """
 Usage:
-  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--nr=<nr>] [--nt=<nt>] [--nz=<nz>] [--restart=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry] [--perturb_restart] taylor_couette_3d.py
+  taylor_couette_3d.py --re=<reynolds> --eta=<eta> --m=<initial_m> [--mu=<mu>] [--ar=<Gamma>] [--nr=<nr>] [--nt=<nt>] [--nz=<nz>] [--restart=<restart_file>] --mesh_1=<mesh_1> --mesh_2=<mesh_2> [--GQL=<GQL>] [--Lambda_z=<Lambda_z>] [--Lambda_theta=<Lambda_theta>] [--willis] [--single_mode] [--run_note=<run_note>] [--theta_symmetry] [--perturb_restart] [--stop_time=<stop_time>] taylor_couette_3d.py
 
 Options:
   --re=<reynolds>  Reynolds number for simulation
@@ -22,7 +22,7 @@ Options:
   --run_note=<run_note>  Note to add to run directory name [default: None]
   --theta_symmetry  Restrict theta to 2pi/m1 [default: False]
   --perturb_restart    perturb on restart [default: False]
-
+  --stop_time=<stop_time>        time to run (will be added to restart time on restart) [default: None]
 delta = R2 - R1
 mu = Omega2/Omega1
 eta = R1/R2
@@ -45,7 +45,7 @@ from docopt import docopt
 import os
 import subprocess
 from mpi4py import MPI
-from GQLProjection import GQLProjection
+from GQLProjection import GQLProject
 from random_vector_potential import random_vector_potential
 from condition import cond_number
 
@@ -72,6 +72,7 @@ if GQL!=None:
     GQL=True
     Lambda_z = int(args['--Lambda_z'])
     Lambda_theta = int(args['--Lambda_theta'])
+    logger.info(f"Running with GQL, (Lambda_z, Lambda_theta) = ({Lambda_z}, {Lambda_theta})")
 mesh_1 = int(args['--mesh_1'])
 mesh_2 = int(args['--mesh_2'])
 m1 = int(args['--m'])
@@ -81,7 +82,11 @@ if restart == 'None':
 run_note = args['--run_note']
 if run_note == 'None':
     run_note = None
-
+stop_time = args['--stop_time']
+if stop_time == 'None':
+    stop_time = None
+else:
+    stop_time = float(stop_time)
 Ltheta = 2*np.pi
 if theta_symmetry:
     logger.info("Running with symmetry restricted theta domain.")
@@ -90,9 +95,9 @@ if theta_symmetry:
     except ZeroDivisionError:
         raise ZeroDivisionError("m1 is zero. Symmmetry restriction not possible")
 if GQL:
-    root_folder = "TC_3d_re_{:e}_eta_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}_GQL_Lambdaz_{:d}_Lambdat_{:d}/".format(Re1,eta,Gamma,m1,nz,ntheta,nr,Lambda_z, Lambda_theta)
+    root_folder = "TC_3d_re_{:e}_eta_{:e}_mu_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}_GQL_Lambdaz_{:d}_Lambdat_{:d}/".format(Re1,eta,mu,Gamma,m1,nz,ntheta,nr,Lambda_z, Lambda_theta)
 else:
-    root_folder = "TC_3d_re_{:e}_eta_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}/".format(Re1,eta,Gamma,m1,nz,ntheta,nr)
+    root_folder = "TC_3d_re_{:e}_eta_{:e}_mu_{:e}_Gamma_{:e}_M1_{:d}_{:d}_{:d}_{:d}/".format(Re1,eta,mu,Gamma,m1,nz,ntheta,nr)
 if willis:
     root_folder = root_folder.strip("/")
     root_folder += "_willis/"
@@ -133,7 +138,7 @@ bases = [z_basis, theta_basis, r_basis]
 domain = de.Domain(bases, grid_dtype=np.float64, mesh=[mesh_1, mesh_2])  
 # problem
 problem = de.IVP(domain, variables=variables)
-de.operators.parseables["Project"] = GQLProjection
+de.operators.parseables["Project"] = GQLProject
 # parameters
 problem.parameters['eta'] = eta
 problem.parameters['mu'] = mu
@@ -286,8 +291,14 @@ else:
 #Setting Simulation Runtime
 omega1 = 1/eta - 1.
 period = 2*np.pi/omega1
-solver.stop_sim_time = solver.sim_time + 25 * period # np.inf #6*period
-solver.stop_wall_time = 24 * 3600. #np.inf # This is in seconds
+t_visc = Re1
+if stop_time:
+    logger.info(f"running for {stop_time} time units")
+    solver.stop_sim_time = solver.sim_time + stop_time
+else:
+    logger.info(f"running for one viscous time: t_visc = {t_visc}")
+    solver.stop_sim_time = solver.sim_time + t_visc
+solver.stop_wall_time = 428400. # 5 days - 1 hour
 solver.stop_iteration = np.inf #2000
 #CFL stuff
 CFL = flow_tools.CFL(solver, initial_dt=1e-2, cadence=5, safety=0.3, max_change=1.5, min_change=0.5, max_dt=0.1, threshold=0.1)
@@ -355,7 +366,7 @@ cond_number(solver)
 while solver.ok:
     solver.step(dt)
     if (solver.iteration-1) % 100 == 0:
-        logger.info('Iteration: %i, Time: %e, Inner rotation periods: %e, dt: %e' %(solver.iteration, solver.sim_time, solver.sim_time/period, dt))
+        logger.info('Iteration: %i, Time: %e, t/P_in: %e, t/t_visc: %e, dt: %e' %(solver.iteration, solver.sim_time, solver.sim_time/period, solver.sim_time/Re1, dt))
         logger.info('Max |divu| = {}'.format(flow.max('divu')))
         logger.info('Total KE per Lz = {}'.format(geo_factor*flow.max('KE')/Lz))
         logger.info('Total enstrophy per Lz = {}'.format(geo_factor*flow.max('enstrophy')/Lz))
