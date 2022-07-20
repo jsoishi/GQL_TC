@@ -106,7 +106,7 @@ Lap_z --> z component of vector laplacian
 """
 problem.substitutions['nu'] = '1/Re1'
 if Re2:
-    problem.substitutions['mu'] = 'Re2/Re1'
+    problem.substitutions['mu'] = 'eta*Re2/Re1'
 problem.substitutions['A'] = '(1/eta - 1.)*(mu-eta**2)/(1-eta**2)'
 problem.substitutions['B'] = 'eta*(1-mu)/((1-eta)*(1-eta**2))'
 
@@ -170,7 +170,7 @@ if MPI.COMM_WORLD.rank == 0:
         crits = None
         print("Critical finder failed.")
     pax,cax = cf.plot_crit()
-    pax.collections[0].set_clim(0,0.01)
+    #pax.collections[0].set_clim(-0.03,-0.08)
 
     cax.xaxis.set_ticks_position('top')
     cax.xaxis.set_label_position('top')
