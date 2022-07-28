@@ -15,11 +15,11 @@
 \newtheorem{corollary}{\bf Corollary}[section]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\Reyn}{\mathrm{Re}}
-
+\newcommand{\Lop}{\mathcal{L}}
 \begin{document}
 
 %%%% Article title to be placed here
-\title{Generalized Quasilinear simulations of Taylor-Couette Flow}
+\title{Generalized Quasi-linear Approximation and Non-normality in Taylor-Couette Flow}
 
 \author{%%%% Author details
 Jeffrey S. Oishi$^{1}$ and Morgan Baxter$^{1,2}$}
@@ -40,49 +40,154 @@ $^{2}$Company Name, Whereever, USA}
 
 %%%% Abstract text to be placed here %%%%%%%%%%%%
 \begin{abstract}
-To do: write abstract
+
 \end{abstract}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Insert the texts which can accomdate on firstpage in the tag "fmtext" %%%%%
 
 \begin{fmtext}
-\section{Introduction}
-Something about Taylor (1923); GQL.
-
-\section{Equations}
-
-Sample equations.
-
 \end{fmtext}
-
 %%%%%%%%%%%%%%% End of first page %%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
 
+\section{Introduction}
+\label{sec:intro}
+%Something about Taylor (1923); GQL.
+Since Taylor's classic 1923 paper\cite{1923RSPTA.223..289T}, fluid between two independently rotating cylinders has become a rich laboratory for the understanding of instability, transition to turbulence, and turbulence itself. Indeed, the interplay between experiment, computation, and theoretical understanding evinced in Taylor's paper remains a model for the study of fluid dynamics.
+
+Some of the most common forms of turbulence in nature are anisotropic, with a symmetry broken by rotation, magnetic fields, or boundary effects. In these situations, significant theoretical progress can be made by considering \emph{quasi-linear} (QL) models, in which one retains only those non-linearities that contribute to the mean flow. Recently, the generalized quasi-linear approximation (GQL) has been developed to systematically expand the QL idea to include sets of non-linear interactions between two \emph{sets} of modes, low and high, respectively, discarding those that involve only high modes. GQL has been shown to perform significantly better in reproducing direct numerical simulations (DNS) than QL models across a wide range of paradigm flows \cite{2016PhRvL.116u4501M,2017JFM...810..412T, 2022arXiv220505513M}. 
+
+Here, we consider Taylor-Couette (TC) flows at moderate inner and outer Reynolds numbers, $|\Reyn_{i,o}| < 3500$. This is an interesting testbed for GQL because it features numerous intricate patterns that are maintained by non-linear interactions beyond the typical cascade found at high $\Reyn$. 
+%GQL has been show to outperform QL models in numerous highly turbulent flows, driven by $\beta$-effects on rotating spheres, rotating convection, rotating plane Couette flow (pCf, here after). 
+One of the key feature of TC flow is that it has non-linear and linear instabilities in different regions of parameter space. In the linearly stable regions, transient growth has been observed in TC flow. 
+As noted by \cite{2002PhFl...14.3475H}, the linear operator $\Lop$ for TC flow can be tuned to control the degree of non-normality, that is its commutator with its adjoint
+\begin{equation}
+    [\Lop^\dagger, \Lop] = f(\mu, \eta, \Reyn, \Gamma)
+\end{equation}
+can be zero or non-zero. 
+This provides a very useful arena to test the validity of GQL in a system that admits both normal and non-normal operators. 
+
+We pursue the flow into the \emph{spiral turbulence} flow regime, and consider the effectiveness of GQL in each case. The classic paper by Coles \cite{1965JFM....21..385C} was the first to note a subcritical transition to spiral turbulence when the cylinders were counter-rotating. More recent work has identified both supercritical and subcritical paths to spiral turbulence\cite{2009PhRvE..80d6315M}.
+Using these prior works as a guide, we consider three cases
+\begin{enumerate}
+    \item Inner cylinder rotating only $\Reyn_o = 0$
+    \item Counter rotating cylinders with moderate outer cylinder rotation $\Reyn_o = -1339$
+    \item Counter rotating cylinders with high outer cylinder rotation $\Reyn_o = -3389$
+\end{enumerate}
+Case 1 has a purely normal linear operator, while the latter two feature moderate and significant non-normality respectively. 
+
+We begin in section~\ref{sec:methods} by detailing our equations, non-dimensionalization, and numerical methods. Section~\ref{sec:linear} reviews both modal and non-modal linear analyses and contains a new analysis combining linear and non-linear aspects. In section~\ref{sec:nonlinear}, we describe the main results of the paper, the comparison of DNS, QL, and GQL in each of the three regimes. Finally, we offer discussion and concluding results in section~\ref{sec:conclusion}.
+%Recently, a subcritical transition to turbulence via interpenetrating spirals has been reported \cite{2020JFM...892A..12C}. This work has a small aspect ratio $\Gamma = 5.26$, which delays the onset of linear instability to considerably higher $\Reyn_1$ for a given $\Reyn_2$. 
+
+\section{Methods}
+\label{sec:methods}
+We solve the incompressible Navier-Stokes equations with unit density for $\mathbf{u}' = \mathbf{u} - \mathbf{U}$,
+where $\mathbf{U} = A r + B/r \hat{\mathbf{e}}_\phi$ is circular Couette flow (CCF here after),
+\begin{align}
+      \frac{\partial \mathbf{u}}{\partial t} + \mathbf{u} \cdot \nabla \mathbf{u} &= -\nabla p + \nu \nabla^2\mathbf{u}\\
+      \nabla \cdot \mathbf{u} &= 0.
+\end{align}
+
+We use the Dedalus framework \cite{2020PhRvR...2b3068B} for all linear and non-linear calculations. Pseudospectra and critical parameters are calculated using eigentools \cite{2021JOSS....6.3079O}. 
+
+We non-dimensionalise lengths in terms of the gap width $d = R_2 - R_1$ and velocities in terms of the inner cylinder velocity $U_1 = R_1 \Omega_1$. Taylor-Couette flow can be parameterised in terms of four parameters, traditionally the inner cylinder Reynolds number $\Reyn_1$, the ratio of inner to outer radii $\eta \equiv R_1/R_2$, the ratio of outer to inner rotation rates $\mu \equiv \Omega_2/\Omega_1$, and the aspect ratio of the cylinder $\Gamma \equiv L_z/d$. In our computations, the $z$ direction is periodic and thus $L_z$ is the periodicity length. We will also refer to the two Reynolds numbers $\Reyn_1$, $\Reyn_2$, related by
+\begin{equation}
+    \frac{\Reyn_2}{\Reyn_1} = \frac{\mu}{\eta}.
+\end{equation}
+
+It is also quite useful to characterize times in terms of the viscous diffusion time $\tau_\nu \equiv d^2/\nu$. In our units, $\tau_\nu = \Reyn_1$.F
+\section{Linear Stability}
+\label{sec:linear}
+\subsection{Non-Axisymmetric Instability with $\mu = 0$}
+%HAHAH This is all laid out in Krueger, Gross, Di Prima (1966), p 523-524
+%The axisymmetric test case of \cite{1984JFM...146...65M} has $\mu = 0$, $\eta = 0.875$, $\Reyn = 139.31064$, and %$k_{min} = 2\pi/L_z = 2.513$ ($L_z = 2.5$). Interestingly, table~\ref{tab:critical_m} shows that circular Couette %flow is linearly unstable to all $m \leq 4$ modes at this $\Reyn$. 
+%
+%A natural assumption is that one would not expect to see axisymmetric flow at these parameters. Fully non-linear %simulations initialized from very low-amplitude random, $\mathbf{\nabla \cdot u} = 0$ perturbations bear this out. %Yet, \cite{1984JFM...146...65M} makes clear reference to TVF being stable to perturbations at this flow. He also %claims that initial conditions including ``round-off noise of the computer'' lead to axisymmetric flow. This is %quite unlikely to be true. 
+%
+%% the two runs (axisymmetric TVF and perturbed, restarted run) are on Leavitt
+%One is naturally led to the question of how axisymmetric TVF is seen in experiment if $\Reyn_{c,m=1}/\Reyn_{c, %m=0} \simeq 1.008$: $m=1$ modes are unstable at a supercriticality of less than 1\%! 
+%The answer becomes obvious if one considers the usual experimental procedure: spin up a fluid from rest to a %$\Reyn < \Reyn_{c,m=0}$, allow Couette flow to be established, then spin up until the first bifurcation occurs. %Allow the TVF to settle and proceed upwards. This will indeed produce an axisymmetric TVF flow that is %\emph{itself stable against $m\ne 0$ perturbations}! At $\Reyn = 138.31$, axisymmetric TVF flow can be perturbed %with gaussian noise and will remain axisymmetric. 
+%
+%\begin{table}[!h]
+%\caption{Critical inner $\Reyn_i$ and $k_z$ as a function of $m$ for $\eta = 0.875$, $\mu = 0$}%%%Table caption %goes here
+%\label{tab:critical_m}
+%\begin{tabular}{rll}%%%The number of columns has to be defined here
+%\hline
+%m & $\Reyn_{ic}$ & $k_z$ \\
+%\hline
+%0 & 118.1 & 3.12947\\
+%1 & 119.0 & 3.14374\\
+%2 & 121.5 & 3.18888\\
+%3 & 126.17 & 3.25852\\
+%4 & 133.32 & 3.35672\\
+%5 & 144.20 & 3.47885\\
+%\end{tabular}
+%\vspace*{-4pt}
+%\end{table}%%%End of the table
+
+The axisymmetric test case of \cite{1984JFM...146...65M} has $\mu = 0$, $\eta = 0.875$, $\Reyn = 139.31064$, and $k_{min} = 2\pi/L_z = 2.513$ ($L_z = 2.5$). Interestingly, circular Couette flow is linearly unstable to all $m \leq 4$ modes at this $\Reyn$. 
+In fact, linear stability analysis shows that $\Reyn_{c,m=1}/\Reyn_{c, m=0} \simeq 1.008$: $m=1$ modes are unstable at a supercriticality of less than 1\%. 
+One is naturally led to the question of how axisymmetric TVF is seen in experiment!
+The answer becomes clear if one considers the usual experimental procedure: spin up a fluid from rest to a $\Reyn < \Reyn_{c,m=0}$, allow Couette flow to be established, then spin up until the first bifurcation occurs. Allow the TVF to settle and proceed upwards. This will indeed produce an axisymmetric TVF flow that is \emph{itself stable against $m\ne 0$ perturbations}! At $\Reyn = 138.31$, axisymmetric TVF flow can be perturbed with gaussian noise and will remain axisymmetric. 
+
+This is important for understanding the bifurcations from TVF to WVF: starting from $\Reyn < \Reyn_{W}$ with random initial conditions, one will find a non-axisymmetric flow.
+
+\subsection{$\Reyn_2 = -1000$, $\eta = 0.883$: Non-modal growth and GQL}
+Next, we look at the case of $\Reyn_2 = -1000$. Setting $\eta = 0.883$ as in Andereck et al (1986), we consider the performance of GQL in both the linearly stable and unstable regime
+\begin{itemize}
+    \item look at pseudospectra for $\Reyn_1 = 450$, $\Reyn_1 = 400$ (below and above critical)
+    \item compare pseudospectra between $\Reyn_2 = 0$ and $\Reyn_2 = -1000$
+    \item do same thing at smaller $\Reyn_2$ to compare with \cite{2002PhFl...14.3475H}
+    \item Compare GQL performance at various cutoffs
+    \item Identify non-normality parameter for TC $\Lop$ for both linearly unstable state and non-linearly modified background
+\end{itemize}
+\subsection{Spiral Turbulence}
+Meseguer et al (2009 PRE): 
+\begin{itemize}
+    \item $\Reyn_o = -1200, \Reyn_i = 600$, $\eta=0.883$, $\Gamma = 29.9$
+    \item $(N_r, N_\theta, N_z) = (20,220,220)$ HAHAHA. No way...more like $(64, 512, 512)$
+\end{itemize}
+
+The spiral turbulence regime with $\mu < 0$ provides a unique opportunity to test GQL in an environment with both spatiotemporal patterns and a tunable bifurcation: by choosing $\Reyn_1$ and $\Reyn_2$ appropriately, both subcritical and supercritical routes to spiral turbulence can be selected. 
+
 \section{Runs}
+\label{sec:nonlinear}
 Taylor-Couette flow is characterized by $\Reyn_i$, $\Reyn_o$, $\eta$, $\Gamma$. For all runs in this paper, the outer cylinder is stationary, so $\Reyn_o = 0$.
 
-The ($\eta$, $\Gamma$) choice is motivated by \cite{1984JFM...146...45M,1984JFM...146...65M}
+The ($\eta$, $\Gamma$) choice is motivated by \cite{1984JFM...146...45M,1984JFM...146...65M}, particularly section 4 of \cite{1984JFM...146...65M}.
+
+First, consider a set of runs with $\mu = 0$. This is a standard, linearly unstable case. Here, we choose three $\Reyn$ values, one in the WVF flow regime $\Reyn =750$, one in the MWF $\Reyn = 1500$, and one in the TTV regime $\Reyn = 2000$. We perform two sets of runs, each varying $\Lambda = {0, 1, 2, 6, 10, 20}$ for both the $z$ and $\theta$ directions. The first set of runs is a cold start from identical initial conditions. This allows us to understand the ability of GQL to find certain flow states. The second set of runs will 
+
 
 \begin{table}[!h]
-\caption{Simulations}%%%Table caption goes here
+\caption{Simulations}
 \label{tab:simulations}
-\begin{tabular}{rllllllll}%%%The number of columns has to be defined here
+\begin{tabular}{rlllllllll}
 \hline
-Run & $\Reyn_i$ & $\eta$ & $\Gamma$  & $N_r$ & $N_\theta$ & $N_z$& $\Lambda_\theta$ & $\Lambda_z$\\
+Run & $\Reyn_i$ & $\Reyn_o$ & $\eta$ & $\Gamma$  & $N_r$ & $N_\theta$ & $N_z$& $\Lambda_\theta$, $\Lambda_z$ & Notes\\
 \hline
-A & 750 & 0.875 & 3 & 32 & 64 & 64 & - & -\\
-B & 1000 & 0.875 & 3 & 32 & 128 & 64 & - & -\\
-C & 1500 & 0.875 & 3 & 32 & 128 & 64 & - & -\\
+A & 750  & 0 & 0.875  & 3 & 32 & 64 & 64 & 0, 1, 3, 5 & WVF\\
+B & 1000 & 0 & 0.875 & 3 & 32 & 256 & 64 & 0, 1, 3, 5 & MWF\\
+C & 2000 & 0 & 0.875 & 3 & 32 & 512 & 64 & 0, 1, 3, 5 & TTV\\
+\hline
+D & 900 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Supercritical SPT\\
+E & 700 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Subcritical SPT\\
+\hline
+F & 640 & -1359 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Supercritical SPT\\
 \end{tabular}
 \vspace*{-4pt}
 \end{table}%%%End of the table
 
+\section{Resolution}
+Might compare poorly resolved DNS to low order GQL as done in\cite{2017JFM...810..412T}. Note that in poorly resolved TC DNS, one gets spurious spiral modes.
 
-\section{Figures \& Tables}
+%\section{Conjugate Stable Modes}
+%Conjugate stable modes? Typically, one considers the effect of the inviscid stable mode rather than the viscously damped mode. However, in the case of TC flow, the background flow profile could not be maintained by the cylinder walls in the limit $\nu \to 0$. However, because circular Couette flow is independent of $\Reyn$, probably the limit is OK? Can think about this. Obviously Rayleigh criterion applies in inviscid case, and this can be easily checked for any angular momentum profile $r^2 \Omega(r)$, so there is some merit to thinking about ideal case even in TC flow. Need to think more about this/run it by Adrian.
 
-The output for figure is:\vspace*{-7pt}
+
+%The output for figure is:\vspace*{-7pt}
 
 %\begin{figure}[!h]
 %\centering\includegraphics[width=2.5in]{xxxxxx.eps}
@@ -92,7 +197,12 @@ The output for figure is:\vspace*{-7pt}
 %\end{figure}
 
 \section{Conclusion}
+\label{sec:conclusion}
 
+\appendix{Odds and ends}
+\begin{itemize}
+    \item On the $\Reyn_c(m=1)/\Reyn_c(m=0) \simeq 1.008$ issue...there's a discussion in  Krueger, Gross, Di Prima (1966), p 523-524, but it references a solution in a conference proceeding that is difficult to find. I have some memory of it being discussed in a more recent paper, but I can't find it anywhere...
+\end{itemize}
 \enlargethispage{20pt}
 
 
@@ -100,17 +210,17 @@ The output for figure is:\vspace*{-7pt}
 
 \dataccess{Insert details of how to access any supporting data here.}
 
-\aucontribute{JSO designed the study, wrote the GQL projection operators, and implemented the original Taylor-Couette Dedalus script. MB performed the simulations, developed data analysis techniques, and added the GQL terms to the TC script. All authors drafted the manuscript.}
+\aucontribute{JSO wrote the manuscript, designed the study, wrote the GQL projection operators, and implemented the original Taylor-Couette Dedalus script. MB added the GQL terms to the TC script, developed data analysis techniques, and performed preliminary simulations. Both authors edited the manuscript.}
 
 \competing{The authors declare that they have no competing interests.}
 
 \funding{Who paid Morgan? Who paid me?}
 
-\ack{We thank Ben Brown for his help validating the Taylor-Couette code. Computations for this paper were performed on the \emph{Leavitt} cluster at the Bates High Performance Computing Center.}
+\ack{We thank Ben Brown for his help validating the Taylor-Couette code and John Mieszczanski for helping with resolution studies.  Computations for this paper were performed on the \emph{Leavitt} cluster at the Bates High Performance Computing Center and the NASA Pleiades system under allocation s2276.}
 
 %%%%%%%%%% Insert bibliography here %%%%%%%%%%%%%%
 
-\bibliographystyle{rsta}
+\bibliographystyle{RS}
 \bibliography{TC}
  
 \end{document}
