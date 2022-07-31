@@ -84,20 +84,32 @@ We begin in section~\ref{sec:methods} by detailing our equations, non-dimensiona
 \section{Methods}
 \label{sec:methods}
 We solve the incompressible Navier-Stokes equations with unit density for $\mathbf{u}' = \mathbf{u} - \mathbf{U}$,
-where $\mathbf{U} = A r + B/r \hat{\mathbf{e}}_\phi$ is circular Couette flow (CCF here after),
+where $\mathbf{U} = A r + B/r \hat{\mathbf{e}}_\phi$ is circular Couette flow (CCF),
 \begin{align}
-      \frac{\partial \mathbf{u}}{\partial t} + \mathbf{u} \cdot \nabla \mathbf{u} &= -\nabla p + \nu \nabla^2\mathbf{u}\\
-      \nabla \cdot \mathbf{u} &= 0.
+\label{eqn:NS}
+      \frac{\partial \mathbf{u'}}{\partial t} + \mathbf{U} \cdot \nabla \mathbf{u'} + \mathbf{u'} \cdot \nabla \mathbf{U} + \mathbf{u'} \cdot \nabla \mathbf{u'} &= -\nabla p + \nu \nabla^2\mathbf{u'}\\
+      \nabla \cdot \mathbf{u'} &= 0.
 \end{align}
+In order to implement the GQL approximation, we introduce a projection operator to divide $\mathbf{u'}$ into two subsets,
+\begin{align}
+    \mathbf{u'}_l = \left< \mathbf{u'}\right>_l &= \sum_{m = -\Lambda_\theta}^{\Lambda_\theta} \sum_{k = -\Lambda_z}^{\Lambda_z} \mathbf{\hat{u}'}_{mk}(r) e^{i (m \theta + 2\pi k z/L_z)}\\
+    \mathbf{u'}_h = \mathbf{u'} - \mathbf{u'}_l.
+\end{align}
+GQL can then be written as 
+\begin{align}
+\label{eqn:GQL}
+      \frac{\partial \mathbf{u'}}{\partial t} + \mathbf{U} \cdot \nabla \mathbf{u'} + \mathbf{u'} \cdot \nabla \mathbf{U} +\nabla p - \nu \nabla^2\mathbf{u'} = &- \left<\mathbf{u'}_l \cdot \nabla \mathbf{u'}_l +\mathbf{u'}_h \cdot \nabla \mathbf{u'}_h\right>_l\\
+      & +\left<\mathbf{u'}_l \cdot \nabla \mathbf{u'}_h + \mathbf{u'}_h \cdot \nabla \mathbf{u'}_l \right>_h\\
+      \nabla \cdot \mathbf{u'} = & 0,
+\end{align}
+where we have written all linear terms on the left hand side. This form is equivalent to those given in prior works (for example \cite{2017JFM...810..412T}), where separate equations are written for the low and high modes, respectively.
 
-We use the Dedalus framework \cite{2020PhRvR...2b3068B} for all linear and non-linear calculations. Pseudospectra and critical parameters are calculated using eigentools \cite{2021JOSS....6.3079O}. 
-
-We non-dimensionalise lengths in terms of the gap width $d = R_2 - R_1$ and velocities in terms of the inner cylinder velocity $U_1 = R_1 \Omega_1$. Taylor-Couette flow can be parameterised in terms of four parameters, traditionally the inner cylinder Reynolds number $\Reyn_1$, the ratio of inner to outer radii $\eta \equiv R_1/R_2$, the ratio of outer to inner rotation rates $\mu \equiv \Omega_2/\Omega_1$, and the aspect ratio of the cylinder $\Gamma \equiv L_z/d$. In our computations, the $z$ direction is periodic and thus $L_z$ is the periodicity length. We will also refer to the two Reynolds numbers $\Reyn_1$, $\Reyn_2$, related by
+We non-dimensionalise lengths in terms of the gap width $d = R_2 - R_1$ and velocities in terms of the inner cylinder velocity $U_i = R_i \Omega_i$. Taylor-Couette flow can be parameterised in terms of four parameters, the inner cylinder Reynolds number $\Reyn_i$, the ratio of inner to outer radii $\eta \equiv R_i/R_o$, the ratio of outer to inner rotation rates $\mu \equiv \Omega_o/\Omega_i$, and the aspect ratio of the cylinder $\Gamma \equiv L_z/d$. In our computations, the $z$ direction is periodic and thus $L_z$ is the periodicity length. We will also refer to the two Reynolds numbers $\Reyn_i$, $\Reyn_2o$, related by
 \begin{equation}
     \frac{\Reyn_2}{\Reyn_1} = \frac{\mu}{\eta}.
 \end{equation}
-
-It is also quite useful to characterize times in terms of the viscous diffusion time $\tau_\nu \equiv d^2/\nu$. In our units, $\tau_\nu = \Reyn_1$.F
+It is also quite useful to characterize times in terms of the viscous diffusion time $\tau_\nu \equiv d^2/\nu$. In our units, $\tau_\nu = \Reyn_i$.
+We use the Dedalus framework \cite{2020PhRvR...2b3068B} for all linear and non-linear calculations. Pseudospectra and critical parameters are calculated using eigentools \cite{2021JOSS....6.3079O}.
 \section{Linear Stability}
 \label{sec:linear}
 \subsection{Non-Axisymmetric Instability with $\mu = 0$}
@@ -150,6 +162,14 @@ Next, we look at the case of $\Reyn_2 = -1000$. Setting $\eta = 0.883$ as in And
     \caption{A summary of spiral turbulence runs in the $\Reyn_o-\Reyn_i$ plane showing linear stability boundary. Solid circles shows points where we have conducted GQL analysis; crosses represent DNS steps along the path to subcritical behaviour. }
     \label{fig:LSB}
 \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figs/rei900_reo_-3398_KE_vs_t.pdf}
+    \includegraphics[width=0.5\textwidth]{}
+    \caption{Perturbation kinetic energy as a function of time for $\Reyn_i = 900, \Reyn_o=-3398$. Starting from a saturated spiral turbulence state at $t/\tau_\nu \simeq 1.5$, we continue the solution with QL ($\Lambda = 0$) and GQL with cutoffs $\Lambda = 1,3,5,10$. Note that all of the reduced models begin high amplitude oscillations.}
+    \label{fig:ke_vs_t_rei900}
+\end{figure}
 %Meseguer et al (2009 PRE): 
 %\begin{itemize}
 %    \item $\Reyn_o = -1200, \Reyn_i = 600$, $\eta=0.883$, $\Gamma = 29.9$
@@ -162,7 +182,7 @@ From these two seed runs, we decrease $\Reyn_i$ in steps shown in figure~\ref{fi
 
 \section{Runs}
 \label{sec:nonlinear}
-Taylor-Couette flow is characterized by $\Reyn_i$, $\Reyn_o$, $\eta$, $\Gamma$. For all runs in this paper, the outer cylinder is stationary, so $\Reyn_o = 0$.
+
 
 The ($\eta$, $\Gamma$) choice is motivated by \cite{1984JFM...146...45M,1984JFM...146...65M}, particularly section 4 of \cite{1984JFM...146...65M}.
 
