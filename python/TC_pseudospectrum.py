@@ -35,7 +35,7 @@ nr=int(args['--nr'])
 m = int(args['--m'])
 alpha = float(args['--kz'])
 
-filename = "../figs/TC_pseudospectrum_Re1_{:5.2f}_eta_{:6.4f}_mu_{:6.4f}_nr_{:d}_m_{:d}_kz_{:5.2f}.png".format(Re1, eta, mu, nr, m, alpha)
+filename = "../figs/TC_pseudospectrum_Re1_{:5.2f}_eta_{:6.4f}_mu_{:6.4f}_nr_{:d}_m_{:d}_kz_{:5.2f}.pdf".format(Re1, eta, mu, nr, m, alpha)
 
 def energy_norm(Q1, Q2):
     u1 = Q1['u']
@@ -140,17 +140,21 @@ k = 25
 
 psize = 100
 ps_real = np.linspace(-4,2,psize)
-ps_imag = np.linspace(-3,3,psize)
+ps_imag = np.linspace(-4,4,psize)
 ep.calc_ps(k, (ps_real, ps_imag), inner_product=energy_norm,maxiter=20)
 
 clevels = np.linspace(-1.8,0,7)
 print("contour levels: ", clevels)
 plt.figure(figsize=(5,5))
 plt.scatter(ep.evalues_good.imag, ep.evalues_good.real)
-plt.xlim(-1.5,1.5)
-plt.ylim(-2,1)
+print(f"number of good evals: {len(ep.evalues_good)}")
+#plt.xlim(-1.5,1.5)
+#plt.xlim(-1.5,5)
+#plt.ylim(-10,1)
 plt.axhline(0,color='k',alpha=0.3)
-plt.contour(ep.ps_imag, ep.ps_real, np.log10(ep.pseudospectrum.T),levels=clevels,colors='k')
+CS2 = plt.contour(ep.ps_imag, ep.ps_real, np.log10(ep.pseudospectrum.T),levels=clevels,colors='k')
+ax2 = plt.gca()
+ax2.clabel(CS2, CS2.levels)
 plt.xlabel(r"$\omega$")
 plt.ylabel(r"$\gamma$")
 plt.tight_layout()
