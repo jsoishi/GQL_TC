@@ -146,11 +146,32 @@ In order to determine the linear stability bound, we find the minimum $\Reyn_i$ 
     \caption{A summary of spiral turbulence runs in the $\Reyn_o-\Reyn_i$ plane showing linear stability boundary. Solid circles shows points where we have conducted GQL analysis; crosses represent DNS steps along the path to subcritical behaviour. }
     \label{fig:LSB}
 \end{figure}
-
 The spiral turbulence regime provides an ideal opportunity to test GQL in an environment with both spatiotemporal patterns and a tunable bifurcation: by choosing $\Reyn_i$ and $\Reyn_o$ appropriately, both subcritical and supercritical manifestations of spiral turbulence can be selected.
-Following pioneering numerical work \cite{2009PhRvE..79c6309M, 2009PhRvE..80d6315M}, we set the outer cylinder rotation rate to $\Reyn_o = -3398$ for the subcritical path and $\Reyn_o = -1359$ for the supercritical path and start a series of DNS runs at a $\Reyn_i$ high enough to trigger spiral turbulence driven by linear instability from a low-amplitude, random inital condition satisfying $\nabla \cdot \mathbf{u} = 0$.
+
+Following pioneering numerical work \cite{2009PhRvE..79c6309M, 2009PhRvE..80d6315M}, we set the outer cylinder rotation rate to $\Reyn_o = -3398$ 
+%for the subcritical path and $\Reyn_o = -1359$ for the supercritical path and 
+start a series of DNS runs at a $\Reyn_i$ high enough to trigger spiral turbulence driven by linear instability from a low-amplitude, random inital condition satisfying $\nabla \cdot \mathbf{u} = 0$.
 From these two seed runs, we decrease $\Reyn_i$ in steps shown in figure~\ref{fig:LSB} where each point represents a DNS or GQL simulation run for one viscous time. The solid circles in figure~\ref{fig:LSB} represent runs where we performed GQL analyses. 
 
+In order to demonstrate the effects non-normality plays, figure~\ref{fig:pseudospectra} shows both the modal spectrum (in blue points) and the $\epsilon-$pseudospectrum for the supercritical and subcritical $\Reyn_i$. The contour value $\epsilon^{-1}$ represents the set of values 
+\begin{equation}
+    \lVert (\sigma \mathbf{I} - \Lop)^{-1} \rVert \geq \epsilon^{-1}
+\end{equation}
+for a given complex number $\sigma = \gamma + i\omega$ here representing the eigenvalue corresponding to the temporal evolution of a linear solution, $e^{\sigma t}$ (see \cite{trefethen2005spectra} for an introduction). These contours in turn give a measure of the maximum amplification of a linear disturbance: the further negative contours extend into the upper-half plane, the larger a linear disturbance can grow even as a result of non-normality. This linear effect is captured entirely by GQL (and QL, for that matter). What role it plays in the development of subcritical spiral turbulence remains an open question.
+\begin{figure}
+    \centering
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figs/TC_pseudospectrum_Re1_900.00_eta_0.8830_mu_-3.3333_nr_64_m_6_kz_ 9.68.pdf}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{figs/TC_pseudospectrum_Re1_700.00_eta_0.8830_mu_-4.2857_nr_64_m_6_kz_ 9.68.pdf}
+    \end{minipage}
+    \caption{Spectra (blue points) and pseudospectra (contours) for $\Reyn_i = 900$ (left) and $\Reyn_i = 700$ (right) for a mode with $m=6$ and $k_z = 9.68$. The latter is the z wavenumber at the critical $\Reyn_{i,crit} \simeq 778$. $\omega$ is the frequency and $\gamma$ the growth rate at each point in the domain. The stability boundary is marked with a gray line at $\gamma = 0$. The are seven equally spaced contours from $-1.8$ to 0.}
+    \label{fig:pseudospectra}
+\end{figure}
 \section{Results}
 \label{sec:nonlinear}
 Figure~\ref{fig:urms_tz_rei700} shows a typical DNS snapshot of the rms velocity perturbation $u'_{rms}$ in the middle of the gap for $\Reyn_i=700$. Despite being well below the linear stability threshold $\Reyn_{i,crit} \simeq 778$, the flow morphology is nearly identical to the supercritical case $\Reyn_i = 900$. 
