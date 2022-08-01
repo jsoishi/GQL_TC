@@ -39,14 +39,14 @@ Jeffrey S. Oishi and Morgan Baxter}
 
 %%%% Abstract text to be placed here %%%%%%%%%%%%
 \begin{abstract}
-
+Taylor-Couette flow is well known to admit a spiral turbulence state in which laminar and turbulent patches coexist around the cylinder. This flow state is quite complex, with delicate internal structure, and it can be traced into certain regimes of linear stability. This behavior is believed to be connected to the non-normality of the linear operator, which is itself a function of the control parameters. Using spiral turbulence in both linearly stable and unstable regimes, we investigate the effectiveness of the generalized quasilinear approximation (GQL), an extension of quasilinear theory designed to capture the essential aspects of turbulent flows. We find that GQL performs much better in the supercritical regime than the subcritical. By including only a small number of modes into the non-linear interactions, GQL simulations maintain a turbulent-like state when in the supercritical regime. However, a much larger number is required to avoid returning to the laminar state when in the subcritical regime. 
 \end{abstract}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Insert the texts which can accomdate on firstpage in the tag "fmtext" %%%%%
 
-\begin{fmtext}
-\end{fmtext}
+%\begin{fmtext}
+%\end{fmtext}
 %%%%%%%%%%%%%%% End of first page %%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
@@ -56,26 +56,34 @@ Jeffrey S. Oishi and Morgan Baxter}
 %Something about Taylor (1923); GQL.
 Since Taylor's classic 1923 paper\cite{1923RSPTA.223..289T}, fluid between two independently rotating cylinders has become a rich laboratory for the understanding of instability, transition to turbulence, and turbulence itself. Indeed, the interplay between experiment, computation, and theoretical understanding evinced in Taylor's paper remains a model for the study of fluid dynamics.
 
-Some of the most common forms of turbulence in nature are anisotropic, with a symmetry broken by rotation, magnetic fields, or boundary effects. In these situations, significant theoretical progress can be made by considering \emph{quasi-linear} (QL) models, in which one retains only those non-linearities that contribute to the mean flow. Recently, the generalized quasi-linear approximation (GQL) has been developed to systematically expand the QL idea to include sets of non-linear interactions between two \emph{sets} of modes, low and high, respectively, discarding those that involve only high modes (see \cite{2022arXiv220505513M} for a recent review). GQL has been shown to perform significantly better in reproducing direct numerical simulations (DNS) than QL models across a wide range of paradigm flows including forced zonal jet formation \cite{2016PhRvL.116u4501M}, rotating plane Couette flow \cite{2017JFM...810..412T}, rapidly rotating convection \cite{2018RSPSA.47480422T}, and channel flow\cite{2019Kellam}. 
+Some of the most common forms of turbulence in nature are anisotropic, with a symmetry broken by rotation, magnetic fields, or boundary effects. In these situations, significant theoretical progress can be made by considering \emph{quasi-linear} (QL) models, in which one retains only those non-linearities that contribute to the mean flow. Recently, the generalized quasi-linear approximation (GQL) has been developed to systematically expand the QL idea to include sets of non-linear interactions between two \emph{sets} of modes, low and high, respectively, discarding those that involve only high modes (see \cite{2022arXiv220505513M} for a recent review). GQL has been shown to perform significantly better in reproducing direct numerical simulations (DNS) than QL models across a wide range of paradigm flows including forced zonal jet formation \cite{2016PhRvL.116u4501M}, rotating plane Couette flow \cite{2017JFM...810..412T}, rapidly rotating convection \cite{2018RSPSA.47480422T}, and channel flow\cite{2019Kellam}.
 
-Here, we consider Taylor-Couette (TC) flows at moderate inner and outer Reynolds numbers, $|\Reyn_{i,o}| < 3500$. This is an interesting testbed for GQL because it features numerous intricate patterns that are maintained by non-linear interactions beyond the typical cascade found at high $\Reyn$. 
+Here, we consider Taylor-Couette (TC) flows at moderate inner and outer Reynolds numbers, $|\Reyn_{i,o}| < 3500$. This is an interesting testbed for GQL because it features numerous intricate patterns that are maintained by non-linear interactions beyond the cascade, local in coefficient space, found at high $\Reyn$. 
 %GQL has been show to outperform QL models in numerous highly turbulent flows, driven by $\beta$-effects on rotating spheres, rotating convection, rotating plane Couette flow (pCf, here after). 
-One of the key feature of TC flow is that it has non-linear and linear instabilities in different regions of parameter space. In the linearly stable regions, transient growth has been observed in TC flow. 
-As noted by \cite{2002PhFl...14.3475H}, the linear operator $\Lop$ for TC flow can be tuned to control the degree of non-normality, that is its commutator with its adjoint
+One of the key feature of TC flow is that it has non-linear and linear instabilities in different regions of parameter space. In the linearly stable regions, transient growth has been observed in TC flow\cite{2002PhFl...14.3475H, 2002PhFl...14.1655M}. 
+We can always write the Navier-Stokes equations in schematic form as
 \begin{equation}
-    [\Lop^\dagger, \Lop] = f(\mu, \eta, \Reyn, \Gamma)
+    \label{eqn:NS-schematic}
+    \frac{\partial \mathbf{q}}{\partial t} + \Lop \mathbf{q} = \mathcal{N}(\mathbf{q}),
+\end{equation}
+where $\Lop$ is a linear operator and $\mathcal{N}$ is a non-linear function of the state vector $\mathbf{q} = \left[ \mathbf{u}  p\right]^T$, where $\mathbf{u}$ is the velocity field and $p$ the pressure.
+As noted by \cite{2002PhFl...14.3475H}, the linear operator $\Lop$ for TC flow is a function of its control parameters.
+That is, its commutator with its adjoint
+\begin{equation}
+    [\Lop^\dagger, \Lop] = f(\mu, \eta, \Reyn_i, \Gamma)
 \end{equation}
 can be zero or non-zero. 
-This provides a very useful arena to test the validity of GQL in a system that admits both normal and non-normal operators. 
+This provides a very useful arena to test the validity of GQL in a system that admits a varying degree of non-normality.
 
-We pursue the flow into the \emph{spiral turbulence} flow regime, and consider the effectiveness of GQL in each case. The classic paper by Coles \cite{1965JFM....21..385C} was the first to note a subcritical transition to spiral turbulence when the cylinders were counter-rotating. More recent work has identified both supercritical and subcritical paths to spiral turbulence\cite{2009PhRvE..80d6315M}.
-Using these prior works as a guide, we consider three cases
-\begin{enumerate}
-    \item Inner cylinder rotating only $\Reyn_o = 0$
-    \item Counter rotating cylinders with moderate outer cylinder rotation $\Reyn_o = -1339$
-    \item Counter rotating cylinders with high outer cylinder rotation $\Reyn_o = -3389$
-\end{enumerate}
-Case 1 has a purely normal linear operator, while the latter two feature moderate and significant non-normality respectively. 
+As a first experiment to this end, we consider the \emph{spiral turbulence} flow regime. The classic paper by Coles \cite{1965JFM....21..385C} was the first to note a hysteretic transition to spiral turbulence when the cylinders were counter-rotating: an experiment at fixed $\Reyn_o$ will have spiral turbulence at a certain $\Reyn_i$ if $\Reyn_i$ is reached by \emph{decreasing} from a higher value, but will not have spiral turbulence at the same $\Reyn_i$ if it is reached by \emph{increasing} from a lower value. More recent work has identified both supercritical and subcritical paths to spiral turbulence\cite{2009PhRvE..80d6315M}. In that work, the authors follow spiral turbulence along a decreasing $\Reyn_i$ path and show that the state is maintained even below the linear stability boundary when $\Reyn_o = -3000$ but it relaminarizes below the stability boundary when $\Reyn_o = -1200$.
+Using \cite{2009PhRvE..80d6315M} as a guide, we use direct numerical simulations (DNS) at $\Reyn_o = -3398$ and decrease $\Reyn_i$ into the subcritical region. We then run a suite of GQL simulations in both the super- and subcritical regions.
+%Using these prior works as a guide, we consider three cases
+%\begin{enumerate}
+%    \item Inner cylinder rotating only $\Reyn_o = 0$
+%    \item Counter rotating cylinders with moderate outer cylinder rotation $\Reyn_o = -1339$
+%    \item Counter rotating cylinders with high outer cylinder rotation $\Reyn_o = -3389$
+%\end{enumerate}
+%Case 1 has a purely normal linear operator, while the latter two feature moderate and significant non-normality respectively. 
 
 We begin in section~\ref{sec:methods} by detailing our equations, non-dimensionalization, and numerical methods. Section~\ref{sec:linear} reviews both modal and non-modal linear analyses and contains a new analysis combining linear and non-linear aspects. In section~\ref{sec:nonlinear}, we describe the main results of the paper, the comparison of DNS, QL, and GQL in each of the three regimes. Finally, we offer discussion and concluding results in section~\ref{sec:conclusion}.
 %Recently, a subcritical transition to turbulence via interpenetrating spirals has been reported \cite{2020JFM...892A..12C}. This work has a small aspect ratio $\Gamma = 5.26$, which delays the onset of linear instability to considerably higher $\Reyn_1$ for a given $\Reyn_2$. 
@@ -102,72 +110,30 @@ GQL can then be written as
       \nabla \cdot \mathbf{u'} = & 0,
 \end{align}
 where we have written all linear terms on the left hand side. This form is equivalent to those given in prior works (for example \cite{2017JFM...810..412T}), where separate equations are written for the low and high modes, respectively.
+For all runs in this paper, $\Lambda = \Lambda_z = \Lambda_\theta$, though we note it would be interesting to consider models quasilinear in $\theta$ (i.e. $\Lambda_\theta = 0$) with varying $\Lambda_z$. These correspond to the \emph{restricted non-linear} models used with success in shear flow turbulence \cite{2014PhFl...26j5112T, 2015PhFl...27j5104T, 2015PhFl...27a1702B}.
 
-We non-dimensionalise lengths in terms of the gap width $d = R_2 - R_1$ and velocities in terms of the inner cylinder velocity $U_i = R_i \Omega_i$. Taylor-Couette flow can be parameterised in terms of four parameters, the inner cylinder Reynolds number $\Reyn_i$, the ratio of inner to outer radii $\eta \equiv R_i/R_o$, the ratio of outer to inner rotation rates $\mu \equiv \Omega_o/\Omega_i$, and the aspect ratio of the cylinder $\Gamma \equiv L_z/d$. In our computations, the $z$ direction is periodic and thus $L_z$ is the periodicity length. We will also refer to the two Reynolds numbers $\Reyn_i$, $\Reyn_2o$, related by
+We non-dimensionalise lengths in terms of the gap width $d = R_2 - R_1$ and velocities in terms of the inner cylinder velocity $U_i = R_i \Omega_i$. Taylor-Couette flow can be parameterised in terms of four parameters, the inner cylinder Reynolds number $\Reyn_i$, the ratio of inner to outer radii $\eta \equiv R_i/R_o$, the ratio of outer to inner rotation rates $\mu \equiv \Omega_o/\Omega_i$, and the aspect ratio of the cylinder $\Gamma \equiv L_z/d$. In our computations, the $z$ direction is periodic and thus $L_z$ is the periodicity length. We will also refer to the two Reynolds numbers $\Reyn_i$, $\Reyn_o$, related by
 \begin{equation}
-    \frac{\Reyn_2}{\Reyn_1} = \frac{\mu}{\eta}.
+    \frac{\Reyn_o}{\Reyn_i} = \frac{\mu}{\eta}.
 \end{equation}
 It is also quite useful to characterize times in terms of the viscous diffusion time $\tau_\nu \equiv d^2/\nu$. In our units, $\tau_\nu = \Reyn_i$.
-We use the Dedalus framework (version 2) \cite{2020PhRvR...2b3068B} for all linear and non-linear calculations. Pseudospectra and critical parameters are calculated using eigentools \cite{2021JOSS....6.3079O}.
+
+We use the pseudo-spectral Dedalus framework (version 2) \cite{2020PhRvR...2b3068B} for all linear and non-linear calculations. We discretize the three velocity components and pressure onto a basis of Chebyshev polynomials in the radial direction, while $\theta$ and $z$ use Fourier bases.
+To evolve the solution forward in time, we use the implicit-explicit Runga-Kutta RK443 time stepper; linear terms are implicitly timestepped while non-linear terms are explicit.
+Our initial value solver has been extensively tested for TC flow against the linear and non-linear test cases in \cite{1984JFM...146...45M, 1984JFM...146...65M} including linear growth rates, non-linear wave speeds, and torque measurements; our spiral turbulence DNS results also agree with those in \cite{2009PhRvE..80d6315M,2009PhRvE..80f7301D,2011JFM...668..150D}. 
+Resolutions and geometric parameters for all runs are given in table~\ref{tab:simulations}.
+We have confirmed our simulations are resolved by ensuring that the highest wavenumber components have spectral power at least $10^5$ smaller than the most energetic scale.
+
+Pseudospectra and critical parameters are calculated using eigentools \cite{2021JOSS....6.3079O}.
 \section{Linear Stability}
 \label{sec:linear}
-\subsection{Non-Axisymmetric Instability with $\mu = 0$}
-%HAHAH This is all laid out in Krueger, Gross, Di Prima (1966), p 523-524
-%The axisymmetric test case of \cite{1984JFM...146...65M} has $\mu = 0$, $\eta = 0.875$, $\Reyn = 139.31064$, and %$k_{min} = 2\pi/L_z = 2.513$ ($L_z = 2.5$). Interestingly, table~\ref{tab:critical_m} shows that circular Couette %flow is linearly unstable to all $m \leq 4$ modes at this $\Reyn$. 
-%
-%A natural assumption is that one would not expect to see axisymmetric flow at these parameters. Fully non-linear %simulations initialized from very low-amplitude random, $\mathbf{\nabla \cdot u} = 0$ perturbations bear this out. %Yet, \cite{1984JFM...146...65M} makes clear reference to TVF being stable to perturbations at this flow. He also %claims that initial conditions including ``round-off noise of the computer'' lead to axisymmetric flow. This is %quite unlikely to be true. 
-%
-%% the two runs (axisymmetric TVF and perturbed, restarted run) are on Leavitt
-%One is naturally led to the question of how axisymmetric TVF is seen in experiment if $\Reyn_{c,m=1}/\Reyn_{c, %m=0} \simeq 1.008$: $m=1$ modes are unstable at a supercriticality of less than 1\%! 
-%The answer becomes obvious if one considers the usual experimental procedure: spin up a fluid from rest to a %$\Reyn < \Reyn_{c,m=0}$, allow Couette flow to be established, then spin up until the first bifurcation occurs. %Allow the TVF to settle and proceed upwards. This will indeed produce an axisymmetric TVF flow that is %\emph{itself stable against $m\ne 0$ perturbations}! At $\Reyn = 138.31$, axisymmetric TVF flow can be perturbed %with gaussian noise and will remain axisymmetric. 
-%
-%\begin{table}[!h]
-%\caption{Critical inner $\Reyn_i$ and $k_z$ as a function of $m$ for $\eta = 0.875$, $\mu = 0$}%%%Table caption %goes here
-%\label{tab:critical_m}
-%\begin{tabular}{rll}%%%The number of columns has to be defined here
-%\hline
-%m & $\Reyn_{ic}$ & $k_z$ \\
-%\hline
-%0 & 118.1 & 3.12947\\
-%1 & 119.0 & 3.14374\\
-%2 & 121.5 & 3.18888\\
-%3 & 126.17 & 3.25852\\
-%4 & 133.32 & 3.35672\\
-%5 & 144.20 & 3.47885\\
-%\end{tabular}
-%\vspace*{-4pt}
-%\end{table}%%%End of the table
-
-The axisymmetric test case of \cite{1984JFM...146...65M} has $\mu = 0$, $\eta = 0.875$, $\Reyn = 139.31064$, and $k_{min} = 2\pi/L_z = 2.513$ ($L_z = 2.5$). Interestingly, circular Couette flow is linearly unstable to all $m \leq 4$ modes at this $\Reyn$. 
-In fact, linear stability analysis shows that $\Reyn_{c,m=1}/\Reyn_{c, m=0} \simeq 1.008$: $m=1$ modes are unstable at a supercriticality of less than 1\%. 
-One is naturally led to the question of how axisymmetric TVF is seen in experiment!
-The answer becomes clear if one considers the usual experimental procedure: spin up a fluid from rest to a $\Reyn < \Reyn_{c,m=0}$, allow Couette flow to be established, then spin up until the first bifurcation occurs. Allow the TVF to settle and proceed upwards. This will indeed produce an axisymmetric TVF flow that is \emph{itself stable against $m\ne 0$ perturbations}! At $\Reyn = 138.31$, axisymmetric TVF flow can be perturbed with gaussian noise and will remain axisymmetric. 
-
-This is important for understanding the bifurcations from TVF to WVF: starting from $\Reyn < \Reyn_{W}$ with random initial conditions, one will find a non-axisymmetric flow.
-
-%\subsection{$\Reyn_2 = -1000$, $\eta = 0.883$: Non-modal growth and GQL}
-%Next, we look at the case of $\Reyn_2 = -1000$. Setting $\eta = 0.883$ as in Andereck et al (1986), we consider the performance of GQL in both the linearly stable and unstable regime
-%\begin{itemize}
-%    \item look at pseudospectra for $\Reyn_1 = 450$, $\Reyn_1 = 400$ (below and above critical)
-%    \item compare pseudospectra between $\Reyn_2 = 0$ and $\Reyn_2 = -1000$
-%    \item do same thing at smaller $\Reyn_2$ to compare with \cite{2002PhFl...14.3475H}
-%    \item Compare GQL performance at various cutoffs
-%    \item Identify non-normality parameter for TC $\Lop$ for both linearly unstable state and non-linearly modified background
-%\end{itemize}
-\subsection{Spiral Turbulence}
+In order to determine the linear stability bound, we find the minimum $\Reyn_i$ for a given $\Reyn_o$ by solving the eigenvalue problem for equations~\ref{eqn:NS}. We note that for all $\Reyn_o$ plotted in figure~\ref{fig:LSB}, most unstable mode is never axisymmetric. At $\Reyn_o=-3398$, where our non-linear calculations are run, the most unstable mode has $m = 5$ at onset, and 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{../figs/reo_rei_lsb.pdf}
     \caption{A summary of spiral turbulence runs in the $\Reyn_o-\Reyn_i$ plane showing linear stability boundary. Solid circles shows points where we have conducted GQL analysis; crosses represent DNS steps along the path to subcritical behaviour. }
     \label{fig:LSB}
 \end{figure}
-
-
-%Meseguer et al (2009 PRE): 
-%\begin{itemize}
-%    \item $\Reyn_o = -1200, \Reyn_i = 600$, $\eta=0.883$, $\Gamma = 29.9$
-%    \item $(N_r, N_\theta, N_z) = (20,220,220)$ HAHAHA. No way...more like $(64, 512, 512)$
-%\end{itemize}
 
 The spiral turbulence regime provides an ideal opportunity to test GQL in an environment with both spatiotemporal patterns and a tunable bifurcation: by choosing $\Reyn_i$ and $\Reyn_o$ appropriately, both subcritical and supercritical manifestations of spiral turbulence can be selected.
 Following pioneering numerical work \cite{2009PhRvE..79c6309M, 2009PhRvE..80d6315M}, we set the outer cylinder rotation rate to $\Reyn_o = -3398$ for the subcritical path and $\Reyn_o = -1359$ for the supercritical path and start a series of DNS runs at a $\Reyn_i$ high enough to trigger spiral turbulence driven by linear instability from a low-amplitude, random inital condition satisfying $\nabla \cdot \mathbf{u} = 0$.
@@ -177,8 +143,9 @@ From these two seed runs, we decrease $\Reyn_i$ in steps shown in figure~\ref{fi
 \label{sec:nonlinear}
 %The ($\eta$, $\Gamma$) choice is motivated by \cite{1984JFM...146...45M,1984JFM...146...65M}, particularly section 4 of \cite{1984JFM...146...65M}.
 
-First, consider a set of runs with $\mu = 0$. This is a standard, linearly unstable case. Here, we choose three $\Reyn$ values, one in the WVF flow regime $\Reyn =750$, one in the MWF $\Reyn = 1500$, and one in the TTV regime $\Reyn = 2000$. We perform two sets of runs, each varying $\Lambda = {0, 1, 2, 6, 10, 20}$ for both the $z$ and $\theta$ directions. The first set of runs is a cold start from identical initial conditions. This allows us to understand the ability of GQL to find certain flow states. The second set of runs will 
-
+%First, consider a set of runs with $\mu = 0$. This is a standard, linearly unstable case. Here, we choose three $\Reyn$ values, one in the WVF flow regime $\Reyn =750$, one in the MWF $\Reyn = 1500$, and one in the TTV regime $\Reyn = 2000$. We perform two sets of runs, each varying $\Lambda = {0, 1, 2, 6, 10, 20}$ for both the $z$ and $\theta$ directions. The first set of runs is a cold start from identical initial conditions. This allows us to understand the ability of GQL to find certain flow states. The second set of runs will 
+We first consider the supercritical case with $\Reyn_i = 900$. We initialize GQL simulations with $\Lambda = 0, 1, 3, 5, 10$ using a snapshot of DNS data at $t \simeq 1.5 \tau_\nu$.  Figure~\ref{fig:rei900_snapshots} shows slices at mid-gap, $r = R_{mid}$. The first important thing to note is that none of these low-order models are able to maintain the spiral structure. Figure~\ref{fig:ke_vs_t_rei900} shows the kinetic energy as a function of time and $\Lambda$ for both the supercritical (left) and subcritical (right) runs. 
+The supercritical case shows significant oscillations at all $\Lambda$. Focusing on $\Lambda=1$, we see that the flow goes through a series of different states bearing a strong resemblance to other well-known TC flow patterns: the interpenetrating spirals (IPS) and intermittency regimes (INT) originally identified in experiments \cite{1984JFM...146...45M} and subsequently found in simulations (e.g. \cite{2009PhRvE..80d6315M}). 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{../figs/urms_tz_rei_700_reo-3398_000278.png}
@@ -188,9 +155,9 @@ First, consider a set of runs with $\mu = 0$. This is a standard, linearly unsta
 
 \begin{figure}
     \centering
-    \includegraphics{}
-    \caption{Caption}
-    \label{fig:my_label}
+    \includegraphics[width=\textwidth]{figs/rei900_snapshots.pdf}
+    \caption{RMS velocity perturbations in the $z-\theta$ plane at $r=R_{mid}$ for $\Reyn_i=900, \Reyn_0=-3398$. The upper left panel shows DNS, the upper right panel shows QL, and the remaining four are GQL with $\Lambda = 1,3,5,10$. Even at $\Lambda = 10$, spiral turbulence is not apparent.}
+    \label{fig:rei900_snapshots}
 \end{figure}
 
 \begin{figure}
@@ -209,6 +176,13 @@ First, consider a set of runs with $\mu = 0$. This is a standard, linearly unsta
 
 \begin{figure}
     \centering
+    \includegraphics{figs}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}
+    \centering
     \includegraphics[width=0.9\textwidth]{figs/rei900_reo_-3398_vmean_profile.pdf}
     \caption{Mean deviation from CCF for $\Reyn_i = 900$, $\Reyn_o=-3398$. The heavy line is DNS, the orange line is QL, and all others are GQL with $\Lambda = 1,3,5,10$.}
     \label{fig:rei900_vmean}
@@ -221,15 +195,15 @@ First, consider a set of runs with $\mu = 0$. This is a standard, linearly unsta
 \hline
 Run & $\Reyn_i$ & $\Reyn_o$ & $\eta$ & $\Gamma$  & $N_r$ & $N_\theta$ & $N_z$& $\Lambda_\theta$, $\Lambda_z$ & Notes\\
 \hline
-A & 750  & 0 & 0.875  & 3 & 32 & 64 & 64 & 0, 1, 3, 5 & WVF\\
-B & 1000 & 0 & 0.875 & 3 & 32 & 256 & 64 & 0, 1, 3, 5 & MWF\\
-C & 2000 & 0 & 0.875 & 3 & 32 & 512 & 64 & 0, 1, 3, 5 & TTV\\
-\hline
-D & 900 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Supercritical SPT\\
-E & 700 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Subcritical SPT\\
-\hline
-F & 640 & -1359 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Supercritical SPT\\
-G & 480 & -1359 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 5 & Supercritical IPS\\
+%A & 750  & 0 & 0.875  & 3 & 32 & 64 & 64 & 0, 1, 3, 5 & WVF\\
+%B & 1000 & 0 & 0.875 & 3 & 32 & 256 & 64 & 0, 1, 3, 5 & MWF\\
+%C & 2000 & 0 & 0.875 & 3 & 32 & 512 & 64 & 0, 1, 3, 5 & TTV\\
+%\hline
+A & 900 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5, 10 & Supercritical SPT\\
+B & 700 & -3398 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5, 10, 20, 30 & Subcritical SPT\\
+%\hline
+%F & 640 & -1359 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 3, 5 & Supercritical SPT\\
+%G & 480 & -1359 & 0.883 & 29.9 & 64 & 512 & 512 & 0, 1, 5 & Supercritical IPS\\
 \end{tabular}
 \vspace*{-4pt}
 \end{table}%%%End of the table
