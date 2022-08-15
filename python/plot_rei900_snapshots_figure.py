@@ -11,7 +11,7 @@ plt.style.use('prl')
 #path = RunSeries(paths.rei640_reo_1359, 'rei640_reo_-1359')
 path = RunSeries(paths.rei900_reo_3398, 'rei900_reo_-3398')
 
-aspect=0.9 #np.sqrt(2)
+aspect=1.2 #np.sqrt(2)
 w = 5
 h = aspect*w
 
@@ -25,10 +25,22 @@ def load_data(df, Rmid, index=-1):
 
     return xmesh, ymesh, dset
 
+def load_snapshot_data(df, Rmid, index=-1):
+    mid = int(df['tasks']['u'].shape[-1]/2)
+    dset = np.sqrt(df['tasks']['u'][index, :,:,mid]**2 + df['tasks']['v'][index, :,:,mid]**2 + df['tasks']['w'][index, :,:,mid]**2)
+
+    image_axes = [2, 1]
+    data_slices = [index, slice(None), slice(None),mid]
+    xmesh, ymesh, vdata = plot_tools.get_plane(df['tasks/u'], 2, 1, data_slices)
+    xmesh *= Rmid
+
+    return xmesh, ymesh, dset
+
+
 
 fig = plt.figure(figsize=(w, h))
 grid = AxesGrid(fig, 111,
-                nrows_ncols=(3, 2),
+                nrows_ncols=(4, 2),
                 axes_pad=0.05,
                 cbar_mode='single',
                 cbar_location='top',
@@ -37,7 +49,7 @@ grid = AxesGrid(fig, 111,
 
 
 for i,ax in enumerate(grid):
-    if i != 4:
+    if i != 6:
         ax.set_axis_off()
     else:
         ax.set_xlabel(r"$R_{mid}\theta$", fontsize=14)
@@ -50,11 +62,15 @@ for i,ax in enumerate(grid):
     filetype = 'slices/slices_s2.h5'
     if not (path.root_dir/Path(r)/filetype).exists():
         filetype = 'slices/slices_s1.h5'
+    if not (path.root_dir/Path(r)/filetype).exists():
+        filetype = 'snapshots/snapshots_s4.h5'
     filename = path.root_dir/Path(r)/filetype
-
     Rmid = eta/(1-eta) + 0.5
     with h5py.File(filename, "r") as df:
-        xgrid, ygrid, data = load_data(df, Rmid)
+        try:
+            xgrid, ygrid, data = load_data(df, Rmid)
+        except:
+            xgrid, ygrid, data = load_snapshot_data(df, Rmid)
 
     im = ax.pcolormesh(xgrid, ygrid, data, vmin=0, vmax=2, rasterized=True)
     label = path.Lambdaz[i]
