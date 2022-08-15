@@ -16,8 +16,8 @@ eps = 1e-16
 aspect=1.6 #np.sqrt(2)
 w = 5
 h = aspect*w
-nk = 256
-nm = 256
+nk = 100
+nm = 100
 
 def load_data(df, Rmid, index=-1):
     dset = df['tasks']['v_r_slice'][index, :,:,0]
