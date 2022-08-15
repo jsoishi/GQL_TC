@@ -194,9 +194,9 @@ We first consider the supercritical case with $\Reyn_i = 900$. We initialize GQL
 
 Figure~\ref{fig:ke_vs_t_rei900} shows the kinetic energy as a function of time and $\Lambda$ for both the supercritical (left) and subcritical (right) runs. 
 The supercritical case shows significant oscillations at all $\Lambda < 30$.
-While both $\Lambda 30$ and 60 show spiral turbulence, $\Lambda=30$ has considerably more wave motion in the laminar region than either $\Lambda = 60$ or DNS. 
-Interestingly, $\Lambda=30$ has a lower kinetic energy much closer to that of DNS than does $\Lambda=60$.
-By examining power spectra (figure
+While both $\Lambda = 30$ and 60 show spiral turbulence, $\Lambda=30$ has considerably more wave motion in the laminar region than either $\Lambda = 60$ or DNS. 
+Interestingly, figure~\ref{fig:ke_vs_t_rei900} shows that $\Lambda=30$ has a \emph{lower} kinetic energy much closer to that of DNS than does $\Lambda=60$.
+By examining power spectra in figure~\ref{fig:rei900_spectra}, we begin to see the reason for the more complex flows seen with $\Lambda > 0$. Even low-order non-linear scatter leads to a steady increase 
 \begin{figure}
     \centering
     \begin{minipage}{0.45\textwidth}
@@ -215,7 +215,7 @@ By examining power spectra (figure
     \centering
     \includegraphics[width=0.9\textwidth]{../figs/rei900_spectra.pdf}
     \caption{$\theta$-$z$ power spectra of $v$ at midgap for $\Reyn_i = 900$ at various GQL cutoffs. Adding a single GQL mode significantly improves the power spectrum. Spiral turbulence appears at $\Lambda=30$. The obvious square in $\Lambda = 60$ represents a sudden drop in spectral power at the cutoff wavenumber.}
-    \label{fig:my_label}
+    \label{fig:rei900_spectra}
 \end{figure}
 Focusing on $\Lambda=5$, figure~\ref{fig:rei900_lambda5_story} shows that the flow goes through a series of different states bearing a strong resemblance to other well-known TC flow patterns originally identified in exhaustive series of experiments reported in \cite{1984JFM...146...45M} and subsequently found in simulations (e.g. \cite{2009PhRvE..80d6315M}). At the time of kinetic energy minimum, labelled 1 in the left hand side of figure~\ref{fig:rei900_lambda5_story}, the flow seems to recapitulate the interpenetrating spirals (IPS) characteristic of lower $\Reyn$ counter-rotating. As the kinetic energy rises, reaching a knee at point 2, the flow morphology resembles the patchy bursts characteristic of the intermittency regime (INT). Finally, at the peak of the kinetic energy oscillation, point 3 in figure~\ref{fig:rei900_lambda5_story}, the flow reaches its closest approach to something resembling spiral turbulence, though it is very difficult to identify the flow as such from a slice at a single point in time and plane in space.
 
@@ -236,7 +236,9 @@ Finally, in figure~\ref{fig:rei900_vmean}, we show the azimuthal velocity averag
 \end{figure}
 
 \subsection{Subcritical spiral turbulence}
-In order to study subcritical spiral turbulence, we ran a series of DNS with decreasing $\Reyn_i$. Each is initialised with the last timestep of the prior run and run for one viscous time. Once we reached $\Reyn_i = 700$, we run a DNS for a final viscous time and then repeat the procedure from the supercritical GQL study. The right panel of figure~\ref{fig:ke_vs_t_rei900} shows  that all $\Lambda < 30$ revert to the laminar state within $0.1 \tau_\nu$. At $\Lambda = 30$, the solution recovers from the decay and begins to climb in energy again, peaking in a state .
+In order to study subcritical spiral turbulence, we ran a series of DNS with decreasing $\Reyn_i$. Each is initialised with the last timestep of the prior run and run for one viscous time. Once we reached $\Reyn_i = 700$, we run a DNS for a final viscous time and then repeat the procedure from the supercritical GQL study. The right panel of figure~\ref{fig:ke_vs_t_rei900} shows  that all $\Lambda < 30$ revert to the laminar state within $0.1 \tau_\nu$. At $\Lambda = 30$, the solution recovers from the decay and begins to climb in energy again but ultimately returns to the laminar CCF state. Curiously, our $\Lambda = 60$ run not only remains in a non-laminar solution for as long as we have been able to run for, it also correctly reproduces the spiral turbulence pattern, just as in the supercritical case. 
+
+The ability of GQL to reproduce spiral turbulence in the subcritical regime is quite significant. First, while $\Lambda = 60$ corresponds to the fully non-linear interactions occurring in a rather large fraction of the total number of modes in the simulation, it is important to note that a DNS at $n_\theta = n_z = 60$ would be massively underresolved, possibly numerically unstable. Second, the ability of non-linear interactions to sustain turbulence where non-normal linear dynamics alone cannot suggests an important role for exact coherent states in subcritical Taylor-Couette flow. Because GQL retains all linear dynamics and low-order non-linear couplings, in addition to the couplings between the mean flows and high modes, if non-normal dynamics played a strong role in subcritical turbulence, one would expect the behavior seen at $\Lambda = 30$ to lead to sustained, rather than transient turbulence. 
 
 \section{Conclusion}
 \label{sec:conclusion}
