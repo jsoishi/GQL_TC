@@ -41,7 +41,7 @@ for i, r in enumerate(path.run_list[:-2]):
         l2_norm = ((r_profile - dns_profile)**2).mean()
         print(f"Lambda = {label} l2_norm = {l2_norm}")
     print(f"Lambda = {label} number of samples = {path.data[i].shape[0]}")
-    plt.plot(r, - vr, label=label, color=c, lw=lw)
+    plt.plot(r, r_profile -vr, label=label, color=c, lw=lw)
 plt.xlabel(r"$r/d$")
 plt.ylabel(r"$\left< v' \right>$")
 plt.xlim(path.r[0].min(),path.r[0].max())
