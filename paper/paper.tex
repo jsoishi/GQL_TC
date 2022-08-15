@@ -19,7 +19,7 @@
 \begin{document}
 
 %%%% Article title to be placed here
-\title{Generalized Quasi-linear Approximation and Non-normality in Taylor-Couette Flow}
+\title{Generalized Quasi-linear Approximation and Non-normality in Taylor-Couette Spiral Turbulence}
 
 \author{%%%% Author details
 Jeffrey S. Oishi and Morgan Baxter}
@@ -56,17 +56,17 @@ Taylor-Couette flow is well known to admit a spiral turbulence state in which la
 %Something about Taylor (1923); GQL.
 Since Taylor's classic 1923 paper\cite{1923RSPTA.223..289T}, fluid between two independently rotating cylinders has become a rich laboratory for the understanding of instability, transition to turbulence, and turbulence itself. Indeed, the interplay between experiment, computation, and theoretical understanding evinced in Taylor's paper remains a model for the study of fluid dynamics.
 
-Some of the most common forms of turbulence in nature are anisotropic, with a symmetry broken by rotation, magnetic fields, or boundary effects. In these situations, significant theoretical progress can be made by considering \emph{quasi-linear} (QL) models, in which one retains only those non-linearities that contribute to the mean flow. Recently, the generalized quasi-linear approximation (GQL) has been developed to systematically expand the QL idea to include sets of non-linear interactions between two \emph{sets} of modes, low and high, respectively, discarding those that involve only high modes (see \cite{2022arXiv220505513M} for a recent review). GQL has been shown to perform significantly better in reproducing direct numerical simulations (DNS) than QL models across a wide range of paradigm flows including forced zonal jet formation \cite{2016PhRvL.116u4501M}, rotating plane Couette flow \cite{2017JFM...810..412T}, rapidly rotating convection \cite{2018RSPSA.47480422T}, and channel flow\cite{2019Kellam}.
+Some of the most common forms of turbulence in nature are anisotropic, with a symmetry broken by rotation, magnetic fields, or boundary effects. In these situations, significant theoretical progress can be made by considering \emph{quasi-linear} (QL) models, in which one retains only those non-linearities that interact with the mean flow. Recently, the generalized quasi-linear approximation (GQL) has been developed to systematically expand the QL idea to include sets of non-linear interactions between two \emph{sets} of modes, low and high, respectively (see \cite{2022arXiv220505513M} for a recent review). GQL has been shown to perform significantly better in reproducing direct numerical simulations (DNS) than QL models across a wide range of paradigm flows including forced zonal jet formation \cite{2016PhRvL.116u4501M}, rotating plane Couette flow \cite{2017JFM...810..412T}, rapidly rotating convection \cite{2018RSPSA.47480422T}, and channel flow\cite{2019Kellam}.
 
 Here, we consider Taylor-Couette (TC) flows at moderate inner and outer Reynolds numbers, $|\Reyn_{i,o}| < 3500$. This is an interesting testbed for GQL because it features numerous intricate patterns that are maintained by non-linear interactions beyond the cascade, local in coefficient space, found at high $\Reyn$. 
 One of the key feature of TC flow is that it has non-linear and linear instabilities in different regions of parameter space. In the linearly stable regions, transient growth has been observed in TC flow\cite{2002PhFl...14.3475H, 2002PhFl...14.1655M}. 
-We can always write the Navier-Stokes equations in schematic form as
+We can write the Navier-Stokes equations in schematic form as
 \begin{equation}
     \label{eqn:NS-schematic}
     \frac{\partial \mathbf{q}}{\partial t} + \Lop \mathbf{q} = \mathcal{N}(\mathbf{q}),
 \end{equation}
-where $\Lop$ is a linear operator and $\mathcal{N}$ is a non-linear function of the state vector $\mathbf{q} = \left[ \mathbf{u}  p\right]^T$, where $\mathbf{u}$ is the velocity field and $p$ the pressure.
-As noted by \cite{2002PhFl...14.3475H}, the linear operator $\Lop$ for TC flow is a function of its control parameters.
+where $\Lop$ is a linear operator and $\mathcal{N}$ is a non-linear function of the state vector $\mathbf{q} = \left[ \mathbf{u},  p\right]^T$, where $\mathbf{u}$ is the velocity field and $p$ the pressure.
+As noted by \cite{2002PhFl...14.3475H}, the non-normality of the linear operator $\Lop$ for TC flow is a function of its control parameters.
 That is, its commutator with its adjoint
 \begin{equation}
     [\Lop^\dagger, \Lop] = f(\mu, \eta, \Reyn_i, \Gamma)
@@ -77,7 +77,7 @@ This provides a very useful arena to test the validity of GQL in a system that a
 As a first experiment to this end, we consider the \emph{spiral turbulence} flow regime. The classic paper by Coles \cite{1965JFM....21..385C} was the first to note a hysteretic transition to spiral turbulence when the cylinders were counter-rotating: an experiment at fixed $\Reyn_o$ will have spiral turbulence at a certain $\Reyn_i$ if $\Reyn_i$ is reached by \emph{decreasing} from a higher value, but will not have spiral turbulence at the same $\Reyn_i$ if it is reached by \emph{increasing} from a lower value. More recent work has identified both supercritical and subcritical paths to spiral turbulence\cite{2009PhRvE..80d6315M}. In that work, the authors follow spiral turbulence along a decreasing $\Reyn_i$ path and show that the state is maintained even below the linear stability boundary when $\Reyn_o = -3000$ but it relaminarizes below the stability boundary when $\Reyn_o = -1200$.
 Using \cite{2009PhRvE..80d6315M} as a guide, we use direct numerical simulations (DNS) at $\Reyn_o = -3398$ and decrease $\Reyn_i$ into the subcritical region. We then run a suite of GQL simulations in both the super- and subcritical regions.
 
-We begin in section~\ref{sec:methods} by detailing our equations, non-dimensionalization, and numerical methods. Section~\ref{sec:linear} reviews both modal and non-modal linear analyses and contains a new analysis combining linear and non-linear aspects. In section~\ref{sec:nonlinear}, we describe the main results of the paper, the comparison of DNS, QL, and GQL in each of the three regimes. Finally, we offer discussion and concluding results in section~\ref{sec:conclusion}.
+We begin in section~\ref{sec:methods} by detailing our equations, non-dimensionalization, and numerical methods. Section~\ref{sec:linear} reviews both modal and non-modal linear analyses of spiral turbulence. In section~\ref{sec:nonlinear}, we describe the main results of the paper, the comparison of DNS, QL, and GQL for supercritical and subcritical spiral turbulence. Finally, we offer discussion and concluding results in section~\ref{sec:conclusion}.
 %Recently, a subcritical transition to turbulence via interpenetrating spirals has been reported \cite{2020JFM...892A..12C}. This work has a small aspect ratio $\Gamma = 5.26$, which delays the onset of linear instability to considerably higher $\Reyn_1$ for a given $\Reyn_2$. 
 
 \section{Methods}
@@ -139,25 +139,26 @@ Pseudospectra and critical parameters are calculated using eigentools \cite{2021
 
 \section{Linear Stability}
 \label{sec:linear}
-In order to determine the linear stability bound, we find the minimum $\Reyn_i$ for a given $\Reyn_o$ by solving the eigenvalue problem for equations~\ref{eqn:NS}. We note that for all $\Reyn_o$ plotted in figure~\ref{fig:LSB}, most unstable mode is never axisymmetric. At $\Reyn_o=-3398$, where our non-linear calculations are run, the most unstable mode has $m = 5$ at onset, and 
+In order to determine the linear stability bound, we find the minimum $\Reyn_i$ for a given $\Reyn_o$ by solving the eigenvalue problem for equations~\ref{eqn:NS}. We note that for all $\Reyn_o$ plotted in figure~\ref{fig:LSB}, most unstable mode is never axisymmetric. At $\Reyn_o=-3398$, where our non-linear calculations are run, the most unstable mode has $m = 5$ at onset. Figure~\ref{fig:LSB} also shows the hysteresis boundaries given in references \cite{1986JFM...164..155A} and \cite{1965JFM....21..385C}. In both cases, original tabular data was not available, so we extracted the data from figures 16 and 2a, respectively using WebPlotDigitizer \cite{Rohatgi2020}. Note the error bars from Coles (1965) \cite{1965JFM....21..385C} give the top and bottom of the markers from the original paper. Notably, even with this uncertainty, the two studies do not agree on the lower boundary for hysteresis despite similar experimental geometries. 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{../figs/reo_rei_lsb.pdf}
-    \caption{A summary of spiral turbulence runs in the $\Reyn_o-\Reyn_i$ plane showing linear stability boundary. Solid circles shows points where we have conducted GQL analysis; crosses represent DNS steps along the path to subcritical behaviour. }
+    \caption{A summary of spiral turbulence runs in the $\Reyn_o-\Reyn_i$ plane showing linear stability boundary. Solid circles shows points where we have conducted GQL analysis; crosses represent DNS steps along the path to subcritical behaviour. The curves labelled Andereck et al. (1986) and Coles (1965) give the boundaries of spiral turbulence hysteresis reported in those two papers.}
     \label{fig:LSB}
 \end{figure}
 The spiral turbulence regime provides an ideal opportunity to test GQL in an environment with both spatiotemporal patterns and a tunable bifurcation: by choosing $\Reyn_i$ and $\Reyn_o$ appropriately, both subcritical and supercritical manifestations of spiral turbulence can be selected.
 
-Following pioneering numerical work \cite{2009PhRvE..79c6309M, 2009PhRvE..80d6315M}, we set the outer cylinder rotation rate to $\Reyn_o = -3398$ 
+Following pioneering numerical work \cite{2009PhRvE..79c6309M, 2009PhRvE..80d6315M}, we set the outer cylinder rotation rate to $\Reyn_o = -3398$ and
 %for the subcritical path and $\Reyn_o = -1359$ for the supercritical path and 
 start a series of DNS runs at a $\Reyn_i$ high enough to trigger spiral turbulence driven by linear instability from a low-amplitude, random inital condition satisfying $\nabla \cdot \mathbf{u} = 0$.
 From these two seed runs, we decrease $\Reyn_i$ in steps shown in figure~\ref{fig:LSB} where each point represents a DNS or GQL simulation run for one viscous time. The solid circles in figure~\ref{fig:LSB} represent runs where we performed GQL analyses. 
 
 In order to demonstrate the effects non-normality plays, figure~\ref{fig:pseudospectra} shows both the modal spectrum (in blue points) and the $\epsilon-$pseudospectrum for the supercritical and subcritical $\Reyn_i$. The contour value $\epsilon^{-1}$ represents the set of values 
 \begin{equation}
+\label{eqn:pseudospectrum}
     \lVert (\sigma \mathbf{I} - \Lop)^{-1} \rVert \geq \epsilon^{-1}
 \end{equation}
-for a given complex number $\sigma = \gamma + i\omega$ here representing the eigenvalue corresponding to the temporal evolution of a linear solution, $e^{\sigma t}$ (see \cite{trefethen2005spectra} for an introduction). These contours in turn give a measure of the maximum amplification of a linear disturbance: the further negative contours extend into the upper-half plane, the larger a linear disturbance can grow even as a result of non-normality. This linear effect is captured entirely by GQL (and QL, for that matter). What role it plays in the development of subcritical spiral turbulence remains an open question.
+for a given complex number $\sigma = \gamma + i\omega$ here representing the eigenvalue corresponding to the temporal evolution of a linear solution, $e^{\sigma t}$ (see \cite{trefethen2005spectra} for an introduction). Equation~\ref{eqn:pseudospectrum} depends on the choice of norm; here we use the standard energy norm. These contours in turn give a measure of the maximum amplification of a linear disturbance: the further negative contours extend into the upper-half plane, the larger a linear disturbance can grow as a result of non-normality, irrespective of the presence of instability. This linear effect is captured entirely by GQL (and QL, for that matter). What role it plays in the development of subcritical spiral turbulence remains an open question.
 \begin{figure}
     \centering
     \centering
@@ -174,7 +175,7 @@ for a given complex number $\sigma = \gamma + i\omega$ here representing the eig
 \end{figure}
 \section{Results}
 \label{sec:nonlinear}
-Figure~\ref{fig:urms_tz_rei700} shows a typical DNS snapshot of the rms velocity perturbation $u'_{rms}$ in the middle of the gap for $\Reyn_i=700$. Despite being well below the linear stability threshold $\Reyn_{i,crit} \simeq 778$, the flow morphology is nearly identical to the supercritical case $\Reyn_i = 900$. 
+Figure~\ref{fig:urms_tz_rei700} shows a typical DNS snapshot of the rms velocity perturbation $u'_{rms}$ in the middle of the gap for $\Reyn_i=700$. Despite being well below the linear stability threshold $\Reyn_{i,crit} \simeq 778$, the flow morphology is nearly identical to the supercritical case $\Reyn_i = 900$ (not shown). 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{../figs/urms_tz_rei_700_reo-3398_000278.png}
@@ -216,7 +217,7 @@ It also highlights the delicate balance an intermittent laminar/turbulent soluti
     \caption{Kinetic energy (left) and flow morphologies (right) for $\Reyn_i = 900$, $\Lambda = 5$ covering one full oscillation cycle. The panels on the right show three times corresponding to the vertical lines in the kinetic energy plot on the left. At the kinetic energy minimum (point 1), the flow shows a IPS-like morphology, while an INT burst occurs at the knee (point 2), and a more space-filling turbulent state occurs at maximum energy (point 3).}
     \label{fig:rei900_lambda5_story}
 \end{figure}
-
+Finally, in figure~\ref{fig:rei900_vmean}, we show the azimuthal velocity averaged over $theta$ and $z$, giving the mean deviation from CCF as a function of GQL cutoff $\Lambda$. Note that no conditional averaging \cite{2009PhRvE..80f7301D} is performed here, so this represents an average over both laminar and turbulent regions for DNS. As $\Lambda$ is increased, the profile approaches the DNS case; this is typical of GQL behaviour (figure 7 of \cite{2017JFM...810..412T} shows the same for rotating plane Couette flow). 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{figs/rei900_reo_-3398_vmean_profile.pdf}
@@ -231,7 +232,7 @@ In order to study subcritical spiral turbulence, we ran a series of DNS with dec
 \label{sec:conclusion}
 We have presented a series of simulations demonstrating the performance of GQL at various cutoffs for Taylor-Couette flow in the spiral turbulence regime. GQL is a significant improvement over QL models in representing mean quantities, including the deviation from circular Couette flow. However, even at the highest cutoffs studied here, it does not retain an unambiguous spiral form in either the sub- or supercritical regimes. Prior work has focused on the utility of GQL in presenting a more accurate \emph{statistical} picture of turbulent flows than QL \cite{2016PhRvL.116u4501M, 2017JFM...810..412T,2018RSPSA.47480422T,2019Kellam}. This focus is particularly important in light of its potential as as means of improving the accuracy of direct statistical simulation (DSS), a method for studying turbulence by computing its statistics directly, rather than individual realizations \cite{2022arXiv220505513M}. 
 
-However, we have shown here that it is possible to use GQL as a means to investigate the non-linear interactions of greatest importance for maintaining the intricate patterns manifested in Taylor-Couette flow. In future work, we will consider the ability of GQL to maintain exact coherent states identified by Deguchi et al \cite{2014PhRvL.112r4502D} and the dynamics of which were studied recently by Wang and coworkers \cite{2022arXiv220712990W}. Understanding how these interactions work to shape subcritical TC turbulence represents a promising new avenue to understanding how ECS are maintained and how they in turn sustain turbulence below linear stability bounds. In particular, one can begin to understand the relative importance of 
+However, we have shown here that it is possible to use GQL as a means to investigate the non-linear interactions of greatest importance for maintaining the intricate patterns manifested in Taylor-Couette flow. In future work, we will consider the ability of GQL to maintain exact coherent states identified by Deguchi et al \cite{2014PhRvL.112r4502D} and the dynamics of which were studied recently by Wang and coworkers \cite{2022arXiv220712990W}. Understanding how these interactions work to shape subcritical TC turbulence represents a promising new avenue to understanding how ECS are maintained and how they in turn sustain turbulence below linear stability bounds. In particular, one can begin to understand the relative importance of non-normal effects (represented entirely with GQL) and non-linear ECS.
 
 \dataccess{All code for non-linear initial value problems, linear eigenvalue and non-modal stability analyses, and plotting are available at \url{https://github.com/jsoishi/GQL_TC}. Dedalus version 2 is available at \url{https://github.com/DedalusProject/dedalus/tree/v2_master}. eigentools is available at \url{https://github.com/DedalusProject/eigentools}. Simulation data is available upon request.}
 
