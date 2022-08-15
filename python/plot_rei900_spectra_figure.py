@@ -93,7 +93,7 @@ for i,ax in enumerate(grid):
     label = path.Lambdaz[i]
     if label is None:
         label = '\infty'
-    ax.text(180,225,f"$\Lambda = {label}$", color='white')
+    ax.text(70,80,f"$\Lambda = {label}$", color='white')
 
 # when cbar_mode is 'single', for ax in grid, ax.cax = grid.cbar_axes[0]
 
