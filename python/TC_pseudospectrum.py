@@ -1,6 +1,6 @@
 """
 Usage:
-  TC_pseudospectrum.py [--re=<reynolds>] [--eta=<eta>] [--m=<initial_m>] [--kz=<kz>] [--mu=<mu>] [--nr=<nr>] 
+  TC_pseudospectrum.py [--re=<reynolds>] [--eta=<eta>] [--m=<initial_m>] [--kz=<kz>] [--mu=<mu>] [--nr=<nr>] [<filename>]
 
 Options:
   --re=<reynolds>  Reynolds number for simulation [default: 250]
@@ -26,6 +26,7 @@ import numpy as np
 from dedalus import public as de
 from eigentools import Eigenproblem, CriticalFinder
 import matplotlib.pyplot as plt
+import h5py
 
 args=docopt(__doc__)
 Re1=float(args['--re'])
@@ -34,8 +35,7 @@ mu = float(args['--mu'])
 nr=int(args['--nr'])
 m = int(args['--m'])
 alpha = float(args['--kz'])
-
-filename = "../figs/TC_pseudospectrum_Re1_{:5.2f}_eta_{:6.4f}_mu_{:6.4f}_nr_{:d}_m_{:d}_kz_{:5.2f}.pdf".format(Re1, eta, mu, nr, m, alpha)
+infile = args['<filename>']
 
 def energy_norm(Q1, Q2):
     u1 = Q1['u']
@@ -94,12 +94,29 @@ Lap_t --> theta component of vector laplacian
 Lap_z --> z component of vector laplacian
 
 """
+outfilename = "../figs/TC_pseudospectrum_Re1_{:5.2f}_eta_{:.4f}_mu_{:.4f}_nr_{:d}_m_{:d}_kz_{:.2f}".format(Re1, eta, mu, nr, m, alpha)
 
-problem.substitutions['A'] = '(1/eta - 1.)*(mu-eta**2)/(1-eta**2)'
-problem.substitutions['B'] = 'eta*(1-mu)/((1-eta)*(1-eta**2))'
 
-problem.substitutions['v0'] = 'A*r + B/r'       #background profile? forcing instead of forcing the boundaries
-problem.substitutions['dv0dr'] = 'A - B/(r*r)'  #d/dr of background forcing
+if infile:
+    print(f"Running with background from {infile}")
+    V = domain.new_field()
+    dVdr = domain.new_field()
+    V.meta['r']['constant'] = True
+    dVdr.meta['r']['constant'] = True
+    with h5py.File(infile,"r") as df:
+        V['g'] = df['u_couette'][0,0,:] + df['v_mean'][0,0,:]
+    V.differentiate('r', out=dVdr)
+
+    problem.parameters['v0'] = V
+    problem.parameters['dv0dr'] = dVdr
+    outfilename += "_saturated"
+else:
+    print(f"Running with circular Couette flow background")
+    problem.substitutions['A'] = '(1/eta - 1.)*(mu-eta**2)/(1-eta**2)'
+    problem.substitutions['B'] = 'eta*(1-mu)/((1-eta)*(1-eta**2))'
+
+    problem.substitutions['v0'] = 'A*r + B/r'       #background profile? forcing instead of forcing the boundaries
+    problem.substitutions['dv0dr'] = 'A - B/(r*r)'  #d/dr of background forcing
 
 problem.substitutions['dtheta(f)'] = '1j*m*f'
 problem.substitutions['dz(f)'] = '1j*kz*f'
@@ -158,4 +175,4 @@ ax2.clabel(CS2, CS2.levels)
 plt.xlabel(r"$\omega$")
 plt.ylabel(r"$\gamma$")
 plt.tight_layout()
-plt.savefig(filename, dpi=300)
+plt.savefig(outfilename+'.pdf', dpi=300)
