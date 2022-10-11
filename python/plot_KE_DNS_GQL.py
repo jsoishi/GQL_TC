@@ -30,7 +30,11 @@ for i, r in enumerate(path.run_list):
 plt.xlabel(r"$t/\tau_\nu$")
 plt.ylabel(r"$E_{kin}$")
 
-plt.xlim(3,4.5)
-plt.legend(ncol=2,fontsize=16)
+plt.xlim(3.4,4.4)# for Rei=700
+#plt.xlim(1.2,2.4) # for Rei=900
+plt.ylim(0,420) # for Rei=700
+#plt.ylim(0,700) # for Rei=900
+plt.legend(ncol=2,fontsize=14) # for Rei=700
+#plt.legend(ncol=1,fontsize=14) # for Rei=900
 plt.tight_layout()
 plt.savefig(f"../figs/{path.name}_KE_vs_t.pdf")
